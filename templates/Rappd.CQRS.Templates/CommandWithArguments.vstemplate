@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+	<TemplateData>
+		<Name>Command with arguments</Name>
+		<Description>A command with arguments.</Description>
+		<Icon>Logo.ico</Icon>
+		<TemplateGroupID >Rappd</TemplateGroupID>
+		<TemplateID>Rappd.CQRS.CommandWithArguments</TemplateID>
+		<ProjectType>CSharp</ProjectType>
+		<NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+		<DefaultName>CommandWithArguments.cs</DefaultName>
+		<PromptForSaveOnCreation>true</PromptForSaveOnCreation>
+	</TemplateData>
+	<TemplateContent>
+		<ProjectItem ReplaceParameters="true">CommandWithArguments.cs</ProjectItem>
+		<CustomParameters>
+			<CustomParameter Name="$argumenttype$" Value="object"/>
+		</CustomParameters>
+	</TemplateContent>
+	<WizardExtension>
+		<Assembly>NuGet.VisualStudio.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
+		<FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
+	</WizardExtension>
+	<WizardData>
+		<packages>
+			<package id="Rappd.CQRS" version="1.0.0" />
+		</packages>
+	</WizardData>
+</VSTemplate>
