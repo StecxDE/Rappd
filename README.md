@@ -8,7 +8,7 @@
 
 ## Features
 
- - [CQRS](#cqrs---command-and-query-responsibility-segregation)
+   - [CQRS](#cqrs---command-and-query-responsibility-segregation)
 
 ## CQRS - Command and Query Responsibility Segregation
 
@@ -30,13 +30,13 @@ PM> Install-Package Rappd.CQRS
 
 ### Usage
 
-1. Define a Query/Command
+1.  Define a Query/Command
 
 ```csharp
 public record TestQuery : Query<TestQuery, int>;
 ```
 
-2. Define a Handler for your Query/Command
+2.  Define a Handler for your Query/Command
 
 ```csharp
 public record TestQueryHandler : TestQuery.Handler
@@ -46,7 +46,7 @@ public record TestQueryHandler : TestQuery.Handler
 }
 ```
 
-3. Send your Query/Command and get your response
+3.  Send your Query/Command and get your response
 
 ```csharp
 var response = await TestQuery.SendAsync();
