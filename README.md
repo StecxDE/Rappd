@@ -8,7 +8,7 @@
 
 ## Features
 
-   - [CQRS](#cqrs---command-and-query-responsibility-segregation)
+-   [CQRS](#cqrs---command-and-query-responsibility-segregation)
 
 ## CQRS - Command and Query Responsibility Segregation
 
