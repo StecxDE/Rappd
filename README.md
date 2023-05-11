@@ -8,6 +8,8 @@
 
 ## Features
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1c69d27f18204686a8d3ae2ad3baa91a)](https://app.codacy.com/gh/StecxDE/Rappd?utm_source=github.com&utm_medium=referral&utm_content=StecxDE/Rappd&utm_campaign=Badge_Grade)
+
 -   [CQRS](#cqrs---command-and-query-responsibility-segregation)
 
 ## CQRS - Command and Query Responsibility Segregation
