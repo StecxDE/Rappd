@@ -5,19 +5,13 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS", "src\Rappd.CQRS\Rappd.CQRS.csproj", "{AA1ACB83-B3B0-4CE0-8E49-F79B579923C2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7577E5B-BF6F-4D0D-AD2A-A6D9CD915AC1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additional Files", "{F7577E5B-BF6F-4D0D-AD2A-A6D9CD915AC1}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.AspNet", "src\Rappd.CQRS.AspNet\Rappd.CQRS.AspNet.csproj", "{C2624259-F053-42C6-84BE-BF3342067E0D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.Tests", "tests\Rappd.CQRS.Tests\Rappd.CQRS.Tests.csproj", "{2CE5D480-AF84-4D9E-99DA-D1A117043331}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.AspNet.Tests", "tests\Rappd.CQRS.AspNet.Tests\Rappd.CQRS.AspNet.Tests.csproj", "{5B610184-4ACA-4EC7-A068-3D0A1230DA69}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{00C5F99F-9308-4051-9D42-A41AF66F9412}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{398B91A5-5EE0-4527-ACEE-53CFB392B368}"
 	ProjectSection(SolutionItems) = preProject
 		assets\Logo.ico = assets\Logo.ico
 		assets\Logo.svg = assets\Logo.svg
@@ -36,6 +30,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C245D439-C
 		docs\CQRS.md = docs\CQRS.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DD5CA34A-821B-4A88-B275-B1C8CDEE1BB3}"
+	ProjectSection(SolutionItems) = preProject
+		build\azure-pipelines.yml = build\azure-pipelines.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rappd.CQRS", "Rappd.CQRS", "{352B5A35-A729-4397-AB86-454229D2B255}"
+	ProjectSection(SolutionItems) = preProject
+		build\Rappd.CQRS\azure-pipelines.yml = build\Rappd.CQRS\azure-pipelines.yml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.AspNet", "src\Rappd.CQRS.AspNet\Rappd.CQRS.AspNet.csproj", "{C2624259-F053-42C6-84BE-BF3342067E0D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.Tests", "tests\Rappd.CQRS.Tests\Rappd.CQRS.Tests.csproj", "{2CE5D480-AF84-4D9E-99DA-D1A117043331}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.AspNet.Tests", "tests\Rappd.CQRS.AspNet.Tests\Rappd.CQRS.AspNet.Tests.csproj", "{5B610184-4ACA-4EC7-A068-3D0A1230DA69}"
+EndProject
+
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.Sample", "samples\Rappd.CQRS.Sample\Rappd.CQRS.Sample.csproj", "{B7E6F552-8778-415D-B9EC-59ACF0313856}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rappd.CQRS.AspNet.Sample", "samples\Rappd.CQRS.AspNet.Sample\Rappd.CQRS.AspNet.Sample.csproj", "{EE2F0F97-C268-432B-B011-31D7E69241B2}"
@@ -43,6 +54,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rappd.CQRS.Templates", "templates\Rappd.CQRS.Templates\Rappd.CQRS.Templates.csproj", "{E62E1C58-BE65-4494-A185-CFD8B0F4F2D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rappd.VisualStudio", "src\Rappd.VisualStudio\Rappd.VisualStudio.csproj", "{DB42B476-C14A-4FF0-939C-1F694137A2FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CQRS", "CQRS", "{DA4BC47A-BD27-41EE-9187-ECCD719706DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,8 +168,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{AA1ACB83-B3B0-4CE0-8E49-F79B579923C2} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{C2624259-F053-42C6-84BE-BF3342067E0D} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{2CE5D480-AF84-4D9E-99DA-D1A117043331} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{5B610184-4ACA-4EC7-A068-3D0A1230DA69} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
 		{00C5F99F-9308-4051-9D42-A41AF66F9412} = {F7577E5B-BF6F-4D0D-AD2A-A6D9CD915AC1}
 		{C245D439-C097-4186-9A50-A37B61CE18D3} = {F7577E5B-BF6F-4D0D-AD2A-A6D9CD915AC1}
+		{B7E6F552-8778-415D-B9EC-59ACF0313856} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{EE2F0F97-C268-432B-B011-31D7E69241B2} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{E62E1C58-BE65-4494-A185-CFD8B0F4F2D5} = {DA4BC47A-BD27-41EE-9187-ECCD719706DF}
+		{DD5CA34A-821B-4A88-B275-B1C8CDEE1BB3} = {F7577E5B-BF6F-4D0D-AD2A-A6D9CD915AC1}
+		{352B5A35-A729-4397-AB86-454229D2B255} = {DD5CA34A-821B-4A88-B275-B1C8CDEE1BB3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C6D81468-58F9-41A5-9C0E-2BD9C035F8DF}
