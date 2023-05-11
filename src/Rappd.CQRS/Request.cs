@@ -48,7 +48,13 @@ public abstract record Command<TRequest>() : Request<TRequest, CommandResponse>
     /// Sends the command.
     /// </summary>
     /// <returns>The response of the command.</returns>
-    public static async Task<CommandResponse> SendAsync(CancellationToken cancellationToken = default)
+    public static Task<CommandResponse> SendAsync()
+        => SendAsync(default);
+    /// <summary>
+    /// Sends the command.
+    /// </summary>
+    /// <returns>The response of the command.</returns>
+    public static async Task<CommandResponse> SendAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -77,7 +83,13 @@ public abstract record Query<TRequest, TData>() : Request<TRequest, QueryRespons
     /// Sends the query.
     /// </summary>
     /// <returns>The response of the query.</returns>
-    public static async Task<QueryResponse<TData>> SendAsync(CancellationToken cancellationToken = default)
+    public static Task<QueryResponse<TData>> SendAsync()
+        => SendAsync(default);
+    /// <summary>
+    /// Sends the query.
+    /// </summary>
+    /// <returns>The response of the query.</returns>
+    public static async Task<QueryResponse<TData>> SendAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -139,7 +151,14 @@ public abstract record Command<TRequest, TArguments>() : Request<TRequest, TArgu
     /// </summary>
     /// <param name="arguments">The arguments to be passed to the command.</param>
     /// <returns>The response of the command.</returns>
-    public static async Task<CommandResponse> SendAsync(TArguments arguments, CancellationToken cancellationToken = default)
+    public static Task<CommandResponse> SendAsync(TArguments arguments)
+        => SendAsync(arguments, default);
+    /// <summary>
+    /// Sends the command.
+    /// </summary>
+    /// <param name="arguments">The arguments to be passed to the command.</param>
+    /// <returns>The response of the command.</returns>
+    public static async Task<CommandResponse> SendAsync(TArguments arguments, CancellationToken cancellationToken)
     {
         try
         {
@@ -170,7 +189,14 @@ public abstract record Query<TRequest, TArguments, TData>() : Request<TRequest, 
     /// </summary>
     /// <param name="arguments">The arguments to be passed to the query.</param>
     /// <returns>The response of the query.</returns>
-    public static async Task<QueryResponse<TData>> SendAsync(TArguments arguments, CancellationToken cancellationToken = default)
+    public static Task<QueryResponse<TData>> SendAsync(TArguments arguments)
+        => SendAsync(arguments, default);
+    /// <summary>
+    /// Sends the query.
+    /// </summary>
+    /// <param name="arguments">The arguments to be passed to the query.</param>
+    /// <returns>The response of the query.</returns>
+    public static async Task<QueryResponse<TData>> SendAsync(TArguments arguments, CancellationToken cancellationToken)
     {
         try
         {

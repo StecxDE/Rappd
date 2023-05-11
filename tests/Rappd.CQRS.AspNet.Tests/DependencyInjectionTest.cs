@@ -5,7 +5,7 @@ namespace Rappd.CQRS.AspNet.Tests;
 [Collection(nameof(TestServerCollection))]
 public class DependencyInjectionTest
 {
-    private TestServer _server;
+    private readonly TestServer _server;
 
     public DependencyInjectionTest(TestServerFixture fixture)
     {

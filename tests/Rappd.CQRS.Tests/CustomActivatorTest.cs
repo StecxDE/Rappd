@@ -13,9 +13,13 @@ public class CustomActivatorTest
         CqrsProvider.Configure(Array.Empty<Assembly>(), t =>
         {
             if (t == typeof(CustomActivatorTestQueryHandler))
+            {
                 return new CustomActivatorTestQueryHandler(value);
-            else 
+            }
+            else
+            {
                 return Activator.CreateInstance(t);
+            }
         });
 
         // Act

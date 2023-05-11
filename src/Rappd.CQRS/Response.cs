@@ -17,13 +17,13 @@ public abstract class Response
     /// <summary>
     /// Initializes a new instance of the <see cref="Response"/> class.
     /// </summary>
-    internal Response() { }
+    private protected Response() { }
 
     /// <summary>
     /// Throws an exception if the request was not successful.
     /// </summary>
     /// <exception cref="Exception">Thrown if the request was not successful.</exception>
-    public void EnsureSuccess() { if (!IsSuccess) throw Error?.ToException() ?? new UnknownErrorResult().ToException(); }
+    public void EnsureSuccess() { if (!IsSuccess) { throw Error?.ToException() ?? new UnknownErrorResult().ToException(); } }
 }
 
 /// <summary>

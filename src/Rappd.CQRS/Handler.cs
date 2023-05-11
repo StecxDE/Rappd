@@ -68,9 +68,13 @@ public abstract record CommandHandler<TRequest> : Handler<TRequest, CommandRespo
         try
         {
             if (cancellationToken.IsCancellationRequested)
+            {
                 result = Results.Cancelled;
+            }
             else
+            {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {

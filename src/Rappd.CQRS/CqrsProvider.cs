@@ -133,7 +133,7 @@ public static class CqrsProvider
             // Get a request type for given handler type if possible
             var requestType = GetRequestType(handlerType) ?? throw new ArgumentException("The type is not a handler.", nameof(THandler));
             // Add the type as a handler for the request
-            _handlerTypes.AddOrUpdate(requestType, (k) => new[] { handlerType }, (k, e) => e.Append(handlerType));
+            _handlerTypes.AddOrUpdate(requestType, (_) => new[] { handlerType }, (_, e) => e.Append(handlerType));
         }
         /// <summary>
         /// Gets a handler for the given request type

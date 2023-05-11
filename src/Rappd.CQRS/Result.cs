@@ -18,7 +18,7 @@ public abstract class ErrorResult : Result
     /// Initializes a new instance of the <see cref="ErrorResult"/> class with a message describing the error.
     /// </summary>
     /// <param name="message">A message describing the error.</param>
-    public ErrorResult(string message)
+    protected ErrorResult(string message)
         => Message = message;
 
     /// <summary>
@@ -48,7 +48,7 @@ public abstract class Result<TData> : Result
     /// Initializes a new instance of the <see cref="Result{TData}"/> class with returned data.
     /// </summary>
     /// <param name="data">The data returned by the request.</param>
-    public Result(TData data)
+    protected Result(TData data)
         => Data = data;
 
     /// <summary>
@@ -215,13 +215,13 @@ public static class Results
     /// The default result of a successful request containing returned data.
     /// </summary>
     /// <typeparam name="TData">The type of the data to return.</typeparam>
-    /// <param name="data">The data to be returned by the request.</param>
+    /// <param name="value">The value to be returned by the request.</param>
     /// <returns>A new instance of the <see cref="OkResult{TData}"/> class with returned data.</returns>
-    public static Result<TData> Data<TData>(TData data) => new OkResult<TData>(data);
+    public static Result<TData> Data<TData>(TData value) => new OkResult<TData>(value);
     /// <summary>
     /// The default result of a unsuccessful request when an exception occurred.
     /// </summary>
-    /// <param name="exception">The occurred exception.</param>
+    /// <param name="ex">The occurred exception.</param>
     /// <returns>A new instance of the <see cref="ExceptionResult"/> class with a occurred exception.</returns>
-    public static ErrorResult Exception(Exception exception) => new ExceptionResult(exception);
+    public static ErrorResult Exception(Exception ex) => new ExceptionResult(ex);
 }
