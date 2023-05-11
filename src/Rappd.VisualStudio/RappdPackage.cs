@@ -30,7 +30,7 @@ namespace Rappd.VisualStudio
          /// <summary>
         /// Rappd.VisualStudioPackage GUID string.
         /// </summary>
-        public const string PackageGuidString = "05151da7-9314-40d9-9f1d-514c82a04bfb";
+        internal const string PackageGuidString = "05151da7-9314-40d9-9f1d-514c82a04bfb";
 
         #region Package Members
 

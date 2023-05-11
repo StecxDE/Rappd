@@ -108,9 +108,13 @@ public abstract record QueryHandler<TRequest, TData> : Handler<TRequest, QueryRe
         try
         {
             if (cancellationToken.IsCancellationRequested)
+            {
                 result = Results.Cancelled;
+            }
             else
+            {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
@@ -178,9 +182,13 @@ public abstract record CommandHandler<TRequest, TArguments> : Handler<TRequest, 
         try
         {
             if (cancellationToken.IsCancellationRequested)
+            {
                 result = Results.Cancelled;
+            }
             else
+            {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
@@ -215,9 +223,13 @@ public abstract record QueryHandler<TRequest, TArguments, TData> : Handler<TRequ
         try
         {
             if (cancellationToken.IsCancellationRequested)
+            {
                 result = Results.Cancelled;
+            }
             else
+            {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
