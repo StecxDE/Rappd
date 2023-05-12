@@ -37,7 +37,7 @@ steps:
   inputs:
     command: custom
     custom: coverage
-    arguments: 'merge $(Build.StagingDirectory)/*.cobertura.xml --recursive --output merged.cobertura.xml --output-format cobertura'
+    arguments: 'merge $(Build.StagingDirectory)/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/merged.cobertura.xml --output-format cobertura'
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.StagingDirectory)'
