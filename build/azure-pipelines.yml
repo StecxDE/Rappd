@@ -25,4 +25,4 @@ steps:
   inputs:
     command: 'test'
     projects: 'tests/**/*.csproj'
-    arguments: '--collect:"XPlat Code Coverage"'
+    arguments: '--collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)"'
