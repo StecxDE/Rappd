@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additio
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{398B91A5-5EE0-4527-ACEE-53CFB392B368}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{00C5F99F-9308-4051-9D42-A41AF66F9412}"
 	ProjectSection(SolutionItems) = preProject
 		assets\Logo.ico = assets\Logo.ico
 		assets\Logo.svg = assets\Logo.svg
