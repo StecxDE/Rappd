@@ -1,0 +1,28 @@
+trigger:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: 'tests/**/*.csproj'
+    feedsToUse: 'select'
+    vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'tests/**/*.csproj'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: 'tests/**/*.csproj'
+    arguments: '--collect:"XPlat Code Coverage"'
