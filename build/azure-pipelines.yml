@@ -25,5 +25,16 @@ steps:
   inputs:
     command: 'test'
     projects: 'tests/**/*.csproj'
-    arguments: '--collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)"'
+    arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore'
     publishTestResults: false
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.StagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'XUnit'
+    testResultsFiles: '**/TEST-*.xml'
+    searchFolder: '$(Build.StagingDirectory)'
+    mergeTestResults: true
