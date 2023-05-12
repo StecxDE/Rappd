@@ -13,6 +13,11 @@ steps:
     version: '6.x'
 - task: DotNetCoreCLI@2
   inputs:
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'install dotnet-coverage'
+- task: DotNetCoreCLI@2
+  inputs:
     command: 'restore'
     projects: 'tests/**/*.csproj'
     feedsToUse: 'select'
@@ -27,14 +32,30 @@ steps:
     projects: 'tests/**/*.csproj'
     arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore'
     publishTestResults: false
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet custom'
+  inputs:
+    command: custom
+    custom: coverage
+    arguments: 'merge $(Build.StagingDirectory)/*.cobertura.xml --recursive --output merged.cobertura.xml --output-format cobertura'
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.StagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(Build.StagingDirectory)/merged.cobertura.xml
+  env:
+    CODACY_PROJECT_TOKEN: $(CODACYPROJECTTOKEN)
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'XUnit'
-    testResultsFiles: '**/TEST-*.xml'
+    testResultsFiles: '*.trx'
     searchFolder: '$(Build.StagingDirectory)'
     mergeTestResults: true
+- task: PublishCodeCoverageResults@2
+  inputs:
+    summaryFileLocation: '$(Build.StagingDirectory)/**/*.cobertura.xml'
