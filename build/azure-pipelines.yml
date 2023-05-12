@@ -56,6 +56,3 @@ steps:
     testResultsFiles: '*.trx'
     searchFolder: '$(Build.StagingDirectory)'
     mergeTestResults: true
-- task: PublishCodeCoverageResults@2
-  inputs:
-    summaryFileLocation: '$(Build.StagingDirectory)/**/*.cobertura.xml'
