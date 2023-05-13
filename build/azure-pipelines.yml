@@ -10,7 +10,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '6.x'
+    version: '7.0.x'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'custom'
@@ -56,3 +56,6 @@ steps:
     testResultsFiles: '*.trx'
     searchFolder: '$(Build.StagingDirectory)'
     mergeTestResults: true
+- task: PublishCodeCoverageResults@2
+  inputs:
+    summaryFileLocation: '$(Build.StagingDirectory)/merged.cobertura.xml'
