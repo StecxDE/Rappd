@@ -6,60 +6,144 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '6.x'
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '7.0.x'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'custom'
-    custom: 'tool'
-    arguments: 'install --global dotnet-coverage'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    projects: 'tests/**/*.csproj'
-    feedsToUse: 'select'
-    vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: 'tests/**/*.csproj'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-    projects: 'tests/**/*.csproj'
-    arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore'
-    publishTestResults: false
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet custom'
-  inputs:
-    command: custom
-    custom: coverage
-    arguments: 'merge $(Build.StagingDirectory)/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/merged.cobertura.xml --output-format cobertura'
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.StagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(Build.StagingDirectory)/merged.cobertura.xml
-  env:
-    CODACY_PROJECT_TOKEN: $(CODACYPROJECTTOKEN)
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'XUnit'
-    testResultsFiles: '*.trx'
-    searchFolder: '$(Build.StagingDirectory)'
-    mergeTestResults: true
-- task: PublishCodeCoverageResults@2
-  inputs:
-    summaryFileLocation: '$(Build.StagingDirectory)/merged.cobertura.xml'
+stages:
+
+- stage: Build
+  jobs:
+  - job: BuildProjects
+    steps:
+    - checkout: self
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: 'tests/**/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: 'tests/**/*.csproj'
+    - task: CopyFiles@2
+      inputs:
+        Contents: '**'
+        TargetFolder: '$(Build.StagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.StagingDirectory)'
+        ArtifactName: 'bin'
+        publishLocation: 'Container'
+
+- stage: Test
+  dependsOn: Build
+  jobs:
+  - job: ExecuteTests
+    steps:
+    - checkout: none
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'bin'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.StagingDirectory)'
+        Contents: '**'
+        TargetFolder: '$(Build.Repository.LocalPath)'
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: 'tests/**/*.csproj'
+        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore'
+        publishTestResults: false
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.StagingDirectory)'
+        ArtifactName: 'results'
+        publishLocation: 'Container'
+  - job: ProcessTestResults
+    steps:
+    - checkout: none
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'results'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '6.x'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'custom'
+        custom: 'tool'
+        arguments: 'install --global dotnet-coverage'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet custom'
+      inputs:
+        command: custom
+        custom: coverage
+        arguments: 'merge $(System.ArtifactsDirectory)/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/merged.cobertura.xml --output-format cobertura'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.ArtifactsDirectory)'
+        Contents: '**/*.trx'
+        TargetFolder: '$(Build.StagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.StagingDirectory)'
+        ArtifactName: 'test'
+        publishLocation: 'Container'
+
+- stage: Publish
+  dependsOn: Test
+  jobs:
+  - job: UploadToCodacy
+    steps:
+    - checkout: none
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'test'
+        itemPattern: '**/*.cobertura.xml'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(System.ArtifactsDirectory)/merged.cobertura.xml
+      env:
+        CODACY_PROJECT_TOKEN: $(CODACYPROJECTTOKEN)
+  - job: UploadToDevOps
+    steps:
+    - checkout: none
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'test'
+        itemPattern: '**'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '7.0.x'
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'XUnit'
+        testResultsFiles: '*.trx'
+        searchFolder: '$(System.ArtifactsDirectory)'
+        mergeTestResults: true
+    - task: PublishCodeCoverageResults@2
+      inputs:
+        summaryFileLocation: '$(Build.ArtifactsDirectory)/merged.cobertura.xml'
