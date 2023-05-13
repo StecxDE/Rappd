@@ -142,7 +142,7 @@ stages:
         version: 7.0.x
     - task: PublishTestResults@2
       inputs:
-        testResultsFormat: 'XUnit'
+        testResultsFormat: 'VSTest'
         testResultsFiles: '*.trx'
         searchFolder: '$(System.ArtifactsDirectory)/test'
         mergeTestResults: true
