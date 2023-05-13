@@ -14,24 +14,29 @@ stages:
     steps:
     - checkout: self
     - task: UseDotNet@2
+      displayName: Install .NET SDK 6.x
       inputs:
         packageType: 'sdk'
         version: '6.x'
     - task: DotNetCoreCLI@2
+      displayName: Restore NuGet-Packages
       inputs:
         command: 'restore'
         projects: 'tests/**/*.csproj'
         feedsToUse: 'select'
         vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
     - task: DotNetCoreCLI@2
+      displayName: Build test projects
       inputs:
         command: 'build'
         projects: 'tests/**/*.csproj'
     - task: CopyFiles@2
+      displayName: Copy binaries
       inputs:
         Contents: '**/bin/**'
         TargetFolder: '$(Build.StagingDirectory)/bin'
     - task: PublishBuildArtifacts@1
+      displayName: Publish binaries artifact
       inputs:
         PathtoPublish: '$(Build.StagingDirectory)/bin'
         ArtifactName: 'bin'
@@ -44,27 +49,32 @@ stages:
     steps:
     - checkout: self
     - task: DownloadBuildArtifacts@1
+      displayName: Download binaries artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'bin'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: CopyFiles@2
+      displayName: Copy binaries
       inputs:
         SourceFolder: '$(System.ArtifactsDirectory)/bin'
         Contents: '**'
         TargetFolder: '$(Build.Repository.LocalPath)'
     - task: UseDotNet@2
+      displayName: Install .NET SDK 6.x
       inputs:
         packageType: 'sdk'
         version: '6.x'
     - task: DotNetCoreCLI@2
+      displayName: Run test projects
       inputs:
         command: 'test'
         projects: 'tests/**/*.csproj'
         arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)/results"'
         publishTestResults: false
     - task: PublishBuildArtifacts@1
+      displayName: Publish test results artifact
       inputs:
         PathtoPublish: '$(Build.StagingDirectory)/results'
         ArtifactName: 'results'
@@ -74,34 +84,38 @@ stages:
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
+      displayName: Download test results artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'results'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
+      displayName: Install .NET SDK 6.x
       inputs:
         packageType: 'sdk'
         version: '6.x'
     - task: DotNetCoreCLI@2
+      displayName: Install dotnet-coverage tool
       inputs:
         command: 'custom'
         custom: 'tool'
         arguments: 'install --global dotnet-coverage'
     - script: mkdir $(System.ArtifactsDirectory)/test
     - task: DotNetCoreCLI@2
-      displayName: 'dotnet custom'
+      displayName: Merge coverage reports
       inputs:
         command: custom
         custom: coverage
         arguments: 'merge $(System.ArtifactsDirectory)/results/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/test/merged.cobertura.xml --output-format cobertura'
     - task: CopyFiles@2
+      displayName: Copy test results
       inputs:
         SourceFolder: '$(System.ArtifactsDirectory)/results'
-        Contents: '**/*.trx'
+        Contents: '**'
         TargetFolder: '$(Build.StagingDirectory)/test'
-        flattenFolders: true
     - task: PublishBuildArtifacts@1
+      displayName: Publish test artifact
       inputs:
         PathtoPublish: '$(Build.StagingDirectory)/test'
         ArtifactName: 'test'
@@ -114,6 +128,7 @@ stages:
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
+      displayName: Download test artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
@@ -121,6 +136,7 @@ stages:
         itemPattern: '**/*.cobertura.xml'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: Bash@3
+      displayName: Run upload script
       inputs:
         targetType: 'inline'
         script: |
@@ -131,24 +147,27 @@ stages:
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
+      displayName: Download test artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'test'
         itemPattern: '**'
         downloadPath: '$(System.ArtifactsDirectory)'
-    - task: DownloadBuildArtifacts@1
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'results'
-        downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
+      displayName: Install .NET SDK 7.0.x
       inputs:
-        version: 7.0.x
+        packageType: 'sdk'
+        version: '7.0.x'
     - task: PublishTestResults@2
+      displayName: Upload test results
       inputs:
         testResultsFormat: 'VSTest'
         testResultsFiles: '*.trx'
         searchFolder: '$(System.ArtifactsDirectory)/results'
         mergeTestResults: true
+    - task: PublishCodeCoverageResults@1
+      displayName: Upload coverage results
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(System.ArtifactsDirectory)/test/merged.cobertura.xml'
