@@ -29,7 +29,7 @@ stages:
         projects: 'tests/**/*.csproj'
     - task: CopyFiles@2
       inputs:
-        Contents: '**'
+        Contents: '**/bin/**'
         TargetFolder: '$(Build.StagingDirectory)'
     - task: PublishBuildArtifacts@1
       inputs:
@@ -42,7 +42,7 @@ stages:
   jobs:
   - job: ExecuteTests
     steps:
-    - checkout: none
+    - checkout: self
     - task: DownloadBuildArtifacts@1
       inputs:
         buildType: 'current'
@@ -51,7 +51,7 @@ stages:
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: CopyFiles@2
       inputs:
-        SourceFolder: '$(Build.StagingDirectory)'
+        SourceFolder: '$(System.ArtifactsDirectory)/bin'
         Contents: '**'
         TargetFolder: '$(Build.Repository.LocalPath)'
     - task: UseDotNet@2
@@ -70,6 +70,7 @@ stages:
         ArtifactName: 'results'
         publishLocation: 'Container'
   - job: ProcessTestResults
+    dependsOn: ExecuteTests
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
