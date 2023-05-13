@@ -137,6 +137,12 @@ stages:
         artifactName: 'test'
         itemPattern: '**'
         downloadPath: '$(System.ArtifactsDirectory)'
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'results'
+        downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
       inputs:
         version: 7.0.x
@@ -144,7 +150,7 @@ stages:
       inputs:
         testResultsFormat: 'VSTest'
         testResultsFiles: '*.trx'
-        searchFolder: '$(System.ArtifactsDirectory)/test'
+        searchFolder: '$(System.ArtifactsDirectory)/results'
         mergeTestResults: true
     - task: PublishCodeCoverageResults@1
       inputs:
