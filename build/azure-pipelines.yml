@@ -97,7 +97,7 @@ stages:
         arguments: 'merge $(System.ArtifactsDirectory)/results/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/test/merged.cobertura.xml --output-format cobertura'
     - task: CopyFiles@2
       inputs:
-        SourceFolder: '$(Build.ArtifactsDirectory)/results'
+        SourceFolder: '$(System.ArtifactsDirectory)/results'
         Contents: '**/*.trx'
         TargetFolder: '$(Build.StagingDirectory)/test'
         flattenFolders: true
