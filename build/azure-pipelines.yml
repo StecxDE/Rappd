@@ -152,7 +152,3 @@ stages:
         testResultsFiles: '*.trx'
         searchFolder: '$(System.ArtifactsDirectory)/results'
         mergeTestResults: true
-    - task: PublishCodeCoverageResults@1
-      inputs:
-        codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(System.ArtifactsDirectory)/test/merged.cobertura.xml'
