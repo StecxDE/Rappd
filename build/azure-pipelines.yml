@@ -149,4 +149,4 @@ stages:
         mergeTestResults: true
     - task: PublishCodeCoverageResults@2
       inputs:
-        summaryFileLocation: '$(Build.ArtifactsDirectory)/test/merged.cobertura.xml'
+        summaryFileLocation: '$(System.ArtifactsDirectory)/test/merged.cobertura.xml'
