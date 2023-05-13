@@ -119,6 +119,7 @@ stages:
   dependsOn: Test
   jobs:
   - job: UploadToCodacy
+    condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/release', 'refs/heads/development'))
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
