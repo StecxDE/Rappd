@@ -64,7 +64,6 @@ stages:
         projects: 'tests/**/*.csproj'
         arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)/results"'
         publishTestResults: false
-    - script: ls -l $(Build.StagingDirectory)
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.StagingDirectory)/results'
@@ -89,6 +88,7 @@ stages:
         command: 'custom'
         custom: 'tool'
         arguments: 'install --global dotnet-coverage'
+    - script: mkdir $(System.ArtifactsDirectory)/test
     - task: DotNetCoreCLI@2
       displayName: 'dotnet custom'
       inputs:
