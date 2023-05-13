@@ -62,8 +62,9 @@ stages:
       inputs:
         command: 'test'
         projects: 'tests/**/*.csproj'
-        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore'
+        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore --no-build'
         publishTestResults: false
+    - script: ls -l $(Build.StagingDirectory)
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.StagingDirectory)'
