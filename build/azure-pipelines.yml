@@ -71,24 +71,24 @@ stages:
       inputs:
         command: 'test'
         projects: 'tests/**/*.csproj'
-        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)/results"'
+        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)/test"'
         publishTestResults: false
     - task: PublishBuildArtifacts@1
-      displayName: Publish test results artifact
+      displayName: Publish test artifact
       inputs:
-        PathtoPublish: '$(Build.StagingDirectory)/results'
-        ArtifactName: 'results'
+        PathtoPublish: '$(Build.StagingDirectory)/test'
+        ArtifactName: 'test'
         publishLocation: 'Container'
   - job: ProcessTestResults
     dependsOn: ExecuteTests
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
-      displayName: Download test results artifact
+      displayName: Download test artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'results'
+        artifactName: 'test'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
       displayName: Install .NET SDK 6.x
@@ -101,24 +101,18 @@ stages:
         command: 'custom'
         custom: 'tool'
         arguments: 'install --global dotnet-coverage'
-    - script: mkdir $(System.ArtifactsDirectory)/test
+    - script: mkdir $(System.ArtifactsDirectory)/merged
     - task: DotNetCoreCLI@2
       displayName: Merge coverage reports
       inputs:
         command: custom
         custom: coverage
-        arguments: 'merge $(System.ArtifactsDirectory)/results/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/test/merged.cobertura.xml --output-format cobertura'
-    - task: CopyFiles@2
-      displayName: Copy test results
-      inputs:
-        SourceFolder: '$(System.ArtifactsDirectory)/results'
-        Contents: '**'
-        TargetFolder: '$(Build.StagingDirectory)/test'
+        arguments: 'merge $(System.ArtifactsDirectory)/test/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/merged/merged.cobertura.xml --output-format cobertura'
     - task: PublishBuildArtifacts@1
-      displayName: Publish test artifact
+      displayName: Publish merged artifact
       inputs:
-        PathtoPublish: '$(Build.StagingDirectory)/test'
-        ArtifactName: 'test'
+        PathtoPublish: '$(Build.StagingDirectory)/merged'
+        ArtifactName: 'merged'
         publishLocation: 'Container'
 
 - stage: Publish
@@ -128,19 +122,18 @@ stages:
     steps:
     - checkout: none
     - task: DownloadBuildArtifacts@1
-      displayName: Download test artifact
+      displayName: Download merged artifact
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'test'
-        itemPattern: '**/*.cobertura.xml'
+        artifactName: 'merged'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: Bash@3
       displayName: Run upload script
       inputs:
         targetType: 'inline'
         script: |
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(System.ArtifactsDirectory)/test/merged.cobertura.xml
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(System.ArtifactsDirectory)/merged/merged.cobertura.xml
       env:
         CODACY_PROJECT_TOKEN: $(CODACYPROJECTTOKEN)
   - job: UploadToDevOps
@@ -152,7 +145,13 @@ stages:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'test'
-        itemPattern: '**'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: DownloadBuildArtifacts@1
+      displayName: Download merged artifact
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'merged'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
       displayName: Install .NET SDK 7.0.x
@@ -164,10 +163,10 @@ stages:
       inputs:
         testResultsFormat: 'VSTest'
         testResultsFiles: '*.trx'
-        searchFolder: '$(System.ArtifactsDirectory)/results'
+        searchFolder: '$(System.ArtifactsDirectory)/test'
         mergeTestResults: true
     - task: PublishCodeCoverageResults@1
       displayName: Upload coverage results
       inputs:
         codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(System.ArtifactsDirectory)/test/merged.cobertura.xml'
+        summaryFileLocation: '$(System.ArtifactsDirectory)/merged/merged.cobertura.xml'
