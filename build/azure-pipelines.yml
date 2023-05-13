@@ -30,10 +30,10 @@ stages:
     - task: CopyFiles@2
       inputs:
         Contents: '**/bin/**'
-        TargetFolder: '$(Build.BinariesDirectory)'
+        TargetFolder: '$(Build.StagingDirectory)/bin'
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.BinariesDirectory)'
+        PathtoPublish: '$(Build.StagingDirectory)/bin'
         ArtifactName: 'bin'
         publishLocation: 'Container'
 
@@ -62,12 +62,12 @@ stages:
       inputs:
         command: 'test'
         projects: 'tests/**/*.csproj'
-        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)" --no-restore --no-build'
+        arguments: '--logger trx --collect:"XPlat Code Coverage" --results-directory "$(Build.StagingDirectory)/results" --no-restore --no-build'
         publishTestResults: false
     - script: ls -l $(Build.StagingDirectory)
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.StagingDirectory)'
+        PathtoPublish: '$(Build.StagingDirectory)/results'
         ArtifactName: 'results'
         publishLocation: 'Container'
   - job: ProcessTestResults
@@ -94,15 +94,16 @@ stages:
       inputs:
         command: custom
         custom: coverage
-        arguments: 'merge $(System.ArtifactsDirectory)/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/merged.cobertura.xml --output-format cobertura'
+        arguments: 'merge $(System.ArtifactsDirectory)/results/*.cobertura.xml --recursive --output $(Build.StagingDirectory)/test/merged.cobertura.xml --output-format cobertura'
     - task: CopyFiles@2
       inputs:
-        SourceFolder: '$(Build.ArtifactsDirectory)'
+        SourceFolder: '$(Build.ArtifactsDirectory)/results'
         Contents: '**/*.trx'
-        TargetFolder: '$(Build.StagingDirectory)'
+        TargetFolder: '$(Build.StagingDirectory)/test'
+        flattenFolders: true
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.StagingDirectory)'
+        PathtoPublish: '$(Build.StagingDirectory)/test'
         ArtifactName: 'test'
         publishLocation: 'Container'
 
@@ -123,7 +124,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(System.ArtifactsDirectory)/merged.cobertura.xml
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r $(System.ArtifactsDirectory)/test/merged.cobertura.xml
       env:
         CODACY_PROJECT_TOKEN: $(CODACYPROJECTTOKEN)
   - job: UploadToDevOps
@@ -144,8 +145,8 @@ stages:
       inputs:
         testResultsFormat: 'XUnit'
         testResultsFiles: '*.trx'
-        searchFolder: '$(System.ArtifactsDirectory)'
+        searchFolder: '$(System.ArtifactsDirectory)/test'
         mergeTestResults: true
     - task: PublishCodeCoverageResults@2
       inputs:
-        summaryFileLocation: '$(Build.ArtifactsDirectory)/merged.cobertura.xml'
+        summaryFileLocation: '$(Build.ArtifactsDirectory)/test/merged.cobertura.xml'
