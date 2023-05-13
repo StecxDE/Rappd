@@ -30,10 +30,10 @@ stages:
     - task: CopyFiles@2
       inputs:
         Contents: '**/bin/**'
-        TargetFolder: '$(Build.StagingDirectory)'
+        TargetFolder: '$(Build.BinariesDirectory)'
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.StagingDirectory)'
+        PathtoPublish: '$(Build.BinariesDirectory)'
         ArtifactName: 'bin'
         publishLocation: 'Container'
 
