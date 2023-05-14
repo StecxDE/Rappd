@@ -14,6 +14,11 @@ stages:
     displayName: Prepare Sources
     steps:
       - checkout: self
+      - task: UseDotNet@2
+        displayName: Install .NET Core 3.1.x
+        inputs:
+          packageType: 'runtime'
+          version: '3.1.x'
       - task: AVersion@1
         inputs:
           repositoryPath: '$(Build.SourcesDirectory)'
@@ -44,6 +49,11 @@ stages:
       - checkout: none
       - download: current
         artifact: Sources
+      - task: UseDotNet@2
+        displayName: Install .NET SDK 6.x
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
       - task: DotNetCoreCLI@2
         inputs:
           command: 'restore'
@@ -74,6 +84,11 @@ stages:
         - download: current
           artifact: Binaries
           patterns: '!**/ref/**'
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'test'
@@ -107,6 +122,11 @@ stages:
             SourceFolder: '$(Pipeline.Workspace)/Binaries'
             Contents: '**'
             TargetFolder: '$(Build.SourcesDirectory)'
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'restore'
@@ -135,6 +155,11 @@ stages:
           persistCredentials: true
         - download: current
           artifact: Packages
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'push'
