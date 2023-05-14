@@ -6,6 +6,7 @@
 <p align="center">
    <a href="https://dev.azure.com/Stecx/Rappd/_build/latest?definitionId=18&branchName=master"><img src="https://dev.azure.com/Stecx/Rappd/_apis/build/status%2FStecxDE.Rappd?branchName=master"/></a>
    <a href="https://app.codacy.com/gh/StecxDE/Rappd/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/2fae5c5014054f88a62c69f04157f3a8"/></a>
+<a href="https://app.codacy.com/gh/StecxDE/Rappd/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage"><img src="https://app.codacy.com/project/badge/Coverage/2fae5c5014054f88a62c69f04157f3a8"/></a>
 </P>
 <p align="center">Speed up your C# software development.</p>
 
