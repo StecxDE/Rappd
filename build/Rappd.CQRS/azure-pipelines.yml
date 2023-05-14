@@ -15,9 +15,9 @@ stages:
     steps:
       - checkout: self
       - task: UseDotNet@2
-        displayName: Install .NET Core 3.1.x
+        displayName: Install .NET Core SDK 3.1.x
         inputs:
-          packageType: 'runtime'
+          packageType: 'sdk'
           version: '3.1.x'
       - task: AVersion@1
         inputs:
