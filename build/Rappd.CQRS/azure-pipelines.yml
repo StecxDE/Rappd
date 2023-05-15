@@ -145,8 +145,94 @@ stages:
             versionEnvVar: 'Version'
         - publish: $(Build.BinariesDirectory)
           artifact: Packages
-    - job: PushPackages
-      displayName: Push Packages
+    - job: PushPackagesDevOps
+      displayName: Pack Binaries
+      variables:
+        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+      steps:
+        - checkout: none
+        - download: current
+          artifact: Sources
+        - download: current
+          artifact: Binaries
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Sources'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+            CleanTargetFolder: true
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Binaries'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
+            feedsToUse: 'select'
+            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'pack'
+            packagesToPack: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
+            configuration: 'Release'
+            packDirectory: '$(Build.BinariesDirectory)'
+            nobuild: true
+            versioningScheme: 'byEnvVar'
+            versionEnvVar: 'Version'
+        - publish: $(Build.BinariesDirectory)
+          artifact: Packages
+    - job: PushPackagesDevOps
+      displayName: Pack Binaries
+      variables:
+        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+      steps:
+        - checkout: none
+        - download: current
+          artifact: Sources
+        - download: current
+          artifact: Binaries
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Sources'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+            CleanTargetFolder: true
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Binaries'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
+            feedsToUse: 'select'
+            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'pack'
+            packagesToPack: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
+            configuration: 'Release'
+            packDirectory: '$(Build.BinariesDirectory)'
+            nobuild: true
+            versioningScheme: 'byEnvVar'
+            versionEnvVar: 'Version'
+        - publish: $(Build.BinariesDirectory)
+          artifact: Packages
+    - job: PushPackagesDevOps
+      displayName: Push Packages DevOps
       dependsOn: PackBinaries
       variables:
         Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
