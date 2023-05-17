@@ -180,8 +180,8 @@ stages:
           inputs:
             command: 'push'
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
-            nuGetFeedType: 'internal'
-            publishVstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+            nuGetFeedType: 'external'
+            publishFeedCredentials: 'nuget.org'
     - job: CreateTag
       displayName: Create Tag
       dependsOn: PushPackagesDevOps
