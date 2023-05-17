@@ -146,100 +146,10 @@ stages:
         - publish: $(Build.BinariesDirectory)
           artifact: Packages
     - job: PushPackagesDevOps
-      displayName: Pack Binaries
-      variables:
-        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
-      steps:
-        - checkout: none
-        - download: current
-          artifact: Sources
-        - download: current
-          artifact: Binaries
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)/Sources'
-            Contents: '**'
-            TargetFolder: '$(Build.SourcesDirectory)'
-            CleanTargetFolder: true
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)/Binaries'
-            Contents: '**'
-            TargetFolder: '$(Build.SourcesDirectory)'
-        - task: UseDotNet@2
-          displayName: Install .NET SDK 6.x
-          inputs:
-            packageType: 'sdk'
-            version: '6.x'
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'restore'
-            projects: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
-            feedsToUse: 'select'
-            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'pack'
-            packagesToPack: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
-            configuration: 'Release'
-            packDirectory: '$(Build.BinariesDirectory)'
-            nobuild: true
-            versioningScheme: 'byEnvVar'
-            versionEnvVar: 'Version'
-        - publish: $(Build.BinariesDirectory)
-          artifact: Packages
-    - job: PushPackagesDevOps
-      displayName: Pack Binaries
-      variables:
-        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
-      steps:
-        - checkout: none
-        - download: current
-          artifact: Sources
-        - download: current
-          artifact: Binaries
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)/Sources'
-            Contents: '**'
-            TargetFolder: '$(Build.SourcesDirectory)'
-            CleanTargetFolder: true
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Pipeline.Workspace)/Binaries'
-            Contents: '**'
-            TargetFolder: '$(Build.SourcesDirectory)'
-        - task: UseDotNet@2
-          displayName: Install .NET SDK 6.x
-          inputs:
-            packageType: 'sdk'
-            version: '6.x'
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'restore'
-            projects: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
-            feedsToUse: 'select'
-            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'pack'
-            packagesToPack: '$(Build.SourcesDirectory)/src/**/Rappd.CQRS*.csproj'
-            configuration: 'Release'
-            packDirectory: '$(Build.BinariesDirectory)'
-            nobuild: true
-            versioningScheme: 'byEnvVar'
-            versionEnvVar: 'Version'
-        - publish: $(Build.BinariesDirectory)
-          artifact: Packages
-    - job: PushPackagesDevOps
       displayName: Push Packages DevOps
       dependsOn: PackBinaries
-      variables:
-        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
       steps:
-        - checkout: self
-          fetchDepth: 0
-          persistCredentials: true
+        - checkout: none
         - download: current
           artifact: Packages
         - task: UseDotNet@2
@@ -253,12 +163,40 @@ stages:
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
             nuGetFeedType: 'internal'
             publishVstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+    - job: PushPackagesNuGet
+      displayName: Push Packages NuGet
+      dependsOn: PackBinaries
+      condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/release'))
+      steps:
+        - checkout: none
+        - download: current
+          artifact: Packages
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 6.x
+          inputs:
+            packageType: 'sdk'
+            version: '6.x'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'push'
+            packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
+            nuGetFeedType: 'internal'
+            publishVstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+    - job: CreateTag
+      displayName: Create Tag
+      dependsOn: PushPackagesDevOps
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      variables:
+        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+      steps:
+        - checkout: self
+          fetchDepth: 0
+          persistCredentials: true
         - pwsh: |
              git config user.email $env:BUILD_REQUESTEDFOREMAIL
              git config user.name $env:BUILD_REQUESTEDFOR
              
              git tag -a $env:TAG -m "Released by $env:BUILD_REQUESTEDFOR"
              git push origin $env:TAG
-          condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
           env:
             TAG: v$(Version)
