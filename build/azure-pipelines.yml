@@ -10,7 +10,34 @@ stages:
 
 - stage: Build
   jobs:
+  - job: PrepareSources
+    displayName: Prepare Sources
+    steps:
+      - checkout: self
+        fetchDepth: 0
+      - task: UseDotNet@2
+        displayName: Install .NET SDK 6.x
+        inputs:
+          packageType: 'sdk'
+          version: '6.x'
+      - task: AVersion@1
+        inputs:
+          repositoryPath: '$(Build.SourcesDirectory)'
+      - script: |
+          echo $(AVersion.Version)
+          echo $(AVersion.Major)
+          echo $(AVersion.Minor)
+          echo $(AVersion.Patch)
+          echo $(AVersion.Build)
+      - script: |
+          echo '##vso[task.setvariable variable=Version;isOutput=true]$(AVersion.Version)'
+          echo '##vso[task.setvariable variable=Major;isOutput=true]$(AVersion.Major)'
+          echo '##vso[task.setvariable variable=Minor;isOutput=true]$(AVersion.Minor)'
+          echo '##vso[task.setvariable variable=Patch;isOutput=true]$(AVersion.Patch)'
+          echo '##vso[task.setvariable variable=Build;isOutput=true]$(AVersion.Build)'
+        name: VersionResult
   - job: BuildProjects
+    dependsOn: PrepareSources
     steps:
     - checkout: self
     - task: UseDotNet@2
@@ -116,7 +143,9 @@ stages:
         publishLocation: 'Container'
 
 - stage: Publish
-  dependsOn: Test
+  dependsOn:
+    - Test
+    - Build
   jobs:
   - job: UploadToCodacy
     condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/release', 'refs/heads/development'))
@@ -171,3 +200,20 @@ stages:
       inputs:
         codeCoverageTool: 'Cobertura'
         summaryFileLocation: '$(System.ArtifactsDirectory)/merged/merged.cobertura.xml'
+  - job: CreateTag
+    displayName: Create Tag
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    variables:
+      Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+    steps:
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: true
+      - pwsh: |
+           git config user.email $env:BUILD_REQUESTEDFOREMAIL
+           git config user.name $env:BUILD_REQUESTEDFOR
+           
+           git tag -a $env:TAG -m "Released by $env:BUILD_REQUESTEDFOR"
+           git push origin $env:TAG
+        env:
+          TAG: v$(Version)
