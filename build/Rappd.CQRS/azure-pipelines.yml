@@ -182,21 +182,3 @@ stages:
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
             nuGetFeedType: 'external'
             publishFeedCredentials: 'nuget.org'
-    - job: CreateTag
-      displayName: Create Tag
-      dependsOn: PushPackagesDevOps
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-      variables:
-        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
-      steps:
-        - checkout: self
-          fetchDepth: 0
-          persistCredentials: true
-        - pwsh: |
-             git config user.email $env:BUILD_REQUESTEDFOREMAIL
-             git config user.name $env:BUILD_REQUESTEDFOR
-             
-             git tag -a $env:TAG -m "Released by $env:BUILD_REQUESTEDFOR"
-             git push origin $env:TAG
-          env:
-            TAG: v$(Version)
