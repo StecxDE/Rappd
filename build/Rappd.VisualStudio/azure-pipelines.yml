@@ -50,3 +50,5 @@ stages:
       - checkout: none
       - download: current
         artifact: Sources
+      - task: NuGetToolInstaller@1
+      
