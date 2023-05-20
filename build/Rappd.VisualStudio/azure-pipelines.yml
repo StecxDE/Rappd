@@ -69,3 +69,42 @@ stages:
           CleanTargetFolder: true
       - publish: $(Build.BinariesDirectory)
         artifact: Binaries
+        
+- stage: Publish
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  dependsOn:
+  - Build
+  jobs:
+    - job: PackExtension
+      displayName: Pack Extension
+      variables:
+        Version: $[ replace(stageDependencies.Build.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+      steps:
+        - checkout: none
+        - download: current
+          artifact: Sources
+        - download: current
+          artifact: Binaries
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Sources'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+            CleanTargetFolder: true
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Binaries'
+            Contents: '**'
+            TargetFolder: '$(Build.SourcesDirectory)'
+        
+        - publish: $(Build.BinariesDirectory)
+          artifact: Extension
+    - job: PushMarketplace
+      displayName: Push Marketplace
+      dependsOn: PackExtension
+      condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/release'))
+      steps:
+        - checkout: none
+        - download: current
+          artifact: Extension
+        
