@@ -57,6 +57,14 @@ stages:
           restoreSolution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
           feedsToUse: 'select'
           vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            $manifestPath = 'src\MappingGenerator.Vsix\bin\Release\MappingGenerator.vsix'
+            $manifestXml = [xml](Get-Content $manifestPath -Raw)
+            $manifestXml.PackageManifest.Metadata.Identity.Version = $env:Version
+            $manifestXml.save($manifestPath)
       - task: MSBuild@1
         inputs:
           solution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
