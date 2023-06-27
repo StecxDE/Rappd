@@ -42,10 +42,7 @@ stages:
     displayName: Build Sources
     dependsOn: PrepareSources
     variables:
-      Major: $[ replace(dependencies.PrepareSources.outputs['VersionResult.Major'], '''', '') ]
-      Minor: $[ replace(dependencies.PrepareSources.outputs['VersionResult.Minor'], '''', '') ]
-      Patch: $[ replace(dependencies.PrepareSources.outputs['VersionResult.Patch'], '''', '') ]
-      Build: $[ replace(coalesce(dependencies.PrepareSources.outputs['VersionResult.Build'], '0'), '''', '') ]
+      Version: $[ replace(coalesce(dependencies.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
     steps:
       - checkout: none
       - download: current
