@@ -42,7 +42,7 @@ stages:
     displayName: Build Sources
     dependsOn: PrepareSources
     variables:
-      Version: $[ replace(coalesce(dependencies.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
+      Version: $[ replace(dependencies.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
     steps:
       - checkout: none
       - download: current
