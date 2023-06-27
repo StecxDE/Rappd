@@ -171,12 +171,8 @@ stages:
         - checkout: none
         - download: current
           artifact: Packages
-        - task: UseDotNet@2
-          displayName: Install .NET SDK 6.x
-          inputs:
-            packageType: 'sdk'
-            version: '6.x'
-        - task: DotNetCoreCLI@2
+        - task: NuGetToolInstaller@1
+        - task: NuGetCommand@2
           inputs:
             command: 'push'
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
