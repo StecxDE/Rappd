@@ -103,7 +103,7 @@ stages:
         - task: NuGetCommand@2
           inputs:
             command: 'restore'
-            restoreSolution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
+            restoreSolution: '$(Build.SourcesDirectory)/src/**/Rappd.VisualStudio.csproj'
             feedsToUse: 'select'
             vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'     
         - task: MSBuild@1
