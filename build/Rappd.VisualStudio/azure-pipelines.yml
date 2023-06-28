@@ -101,7 +101,16 @@ stages:
             SourceFolder: '$(Pipeline.Workspace)/Binaries'
             Contents: '**'
             TargetFolder: '$(Build.SourcesDirectory)'
-        
+        - task: MSBuild@1
+          inputs:
+            solution: '$(Build.SourcesDirectory)/src/**/Rappd.VisualStudio.csproj'
+            msbuildArchitecture: 'x64'
+            configuration: 'Release'
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Build.SourcesDirectory)'
+            Contents: '**/bin/**/*.vsix'
+            TargetFolder: '$(Build.BinariesDirectory)'
         - publish: $(Build.BinariesDirectory)
           artifact: Extension
     - job: PushMarketplace
