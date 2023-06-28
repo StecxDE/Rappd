@@ -99,13 +99,6 @@ stages:
             SourceFolder: '$(Pipeline.Workspace)/Binaries'
             Contents: '**'
             TargetFolder: '$(Build.SourcesDirectory)'
-        - task: NuGetToolInstaller@1
-        - task: NuGetCommand@2
-          inputs:
-            command: 'restore'
-            restoreSolution: '$(Build.SourcesDirectory)/src/**/Rappd.VisualStudio.csproj'
-            feedsToUse: 'select'
-            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'     
         - task: MSBuild@1
           inputs:
             solution: '$(Build.SourcesDirectory)/src/**/Rappd.VisualStudio.csproj'
@@ -114,7 +107,7 @@ stages:
         - task: CopyFiles@2
           inputs:
             SourceFolder: '$(Build.SourcesDirectory)'
-            Contents: '**/bin/**/Rappd.VisualStudio.vsix'
+            Contents: '**/bin/**/*.vsix'
             TargetFolder: '$(Build.BinariesDirectory)'
         - publish: $(Build.BinariesDirectory)
           artifact: Extension
