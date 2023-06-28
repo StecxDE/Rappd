@@ -28,6 +28,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C245D439-C097-4186-9A50-A37B61CE18D3}"
 	ProjectSection(SolutionItems) = preProject
 		docs\CQRS.md = docs\CQRS.md
+		VisualStudio.md = VisualStudio.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DD5CA34A-821B-4A88-B275-B1C8CDEE1BB3}"
