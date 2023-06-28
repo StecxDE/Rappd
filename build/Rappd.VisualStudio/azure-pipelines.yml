@@ -36,13 +36,19 @@ stages:
           echo '##vso[task.setvariable variable=Patch;isOutput=true]$(AVersion.Patch)'
           echo '##vso[task.setvariable variable=Build;isOutput=true]$(AVersion.Build)'
         name: VersionResult
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            $manifestPath = @(Get-ChildItem -Path '$(Pipeline.Workspace)/Sources/src' -Recurse -Include 'source.extension.vsixmanifest' | Select-Object -first 1)
+            $manifestXml = [xml](Get-Content $manifestPath -Raw)
+            $manifestXml.PackageManifest.Metadata.Identity.Version = $env:Version
+            $manifestXml.save($manifestPath)
       - publish: $(Build.SourcesDirectory)
         artifact: Sources
   - job: BuildSources
     displayName: Build Sources
     dependsOn: PrepareSources
-    variables:
-      Version: $[ replace(dependencies.PrepareSources.outputs['VersionResult.Version'], '''', '') ]
     steps:
       - checkout: none
       - download: current
@@ -53,15 +59,7 @@ stages:
           command: 'restore'
           restoreSolution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
           feedsToUse: 'select'
-          vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
-      - task: PowerShell@2
-        inputs:
-          targetType: 'inline'
-          script: |
-            $manifestPath = @(Get-ChildItem -Path '$(Pipeline.Workspace)/Sources/src' -Recurse -Include 'source.extension.vsixmanifest' | Select-Object -first 1)
-            $manifestXml = [xml](Get-Content $manifestPath -Raw)
-            $manifestXml.PackageManifest.Metadata.Identity.Version = $env:Version
-            $manifestXml.save($manifestPath)
+          vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'     
       - task: MSBuild@1
         inputs:
           solution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
@@ -101,6 +99,13 @@ stages:
             SourceFolder: '$(Pipeline.Workspace)/Binaries'
             Contents: '**'
             TargetFolder: '$(Build.SourcesDirectory)'
+        - task: NuGetToolInstaller@1
+        - task: NuGetCommand@2
+          inputs:
+            command: 'restore'
+            restoreSolution: '$(Pipeline.Workspace)/Sources/src/**/Rappd.VisualStudio.csproj'
+            feedsToUse: 'select'
+            vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'     
         - task: MSBuild@1
           inputs:
             solution: '$(Build.SourcesDirectory)/src/**/Rappd.VisualStudio.csproj'
