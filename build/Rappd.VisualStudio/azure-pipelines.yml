@@ -42,7 +42,7 @@ stages:
           script: |
             $manifestPath = @(Get-ChildItem -Path '$(Build.SourcesDirectory)/src' -Recurse -Include 'source.extension.vsixmanifest' | Select-Object -first 1)
             $manifestXml = [xml](Get-Content $manifestPath -Raw)
-            $manifestXml.PackageManifest.Metadata.Identity.Version = $env:Version
+            $manifestXml.PackageManifest.Metadata.Identity.Version = $(AVersion.Version)
             $manifestXml.save($manifestPath)
       - publish: $(Build.SourcesDirectory)
         artifact: Sources
