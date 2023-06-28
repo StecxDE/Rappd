@@ -114,7 +114,7 @@ stages:
         - task: CopyFiles@2
           inputs:
             SourceFolder: '$(Build.SourcesDirectory)'
-            Contents: '**/bin/**/*.vsix'
+            Contents: '**/bin/**/Rappd.VisualStudio.vsix'
             TargetFolder: '$(Build.BinariesDirectory)'
         - publish: $(Build.BinariesDirectory)
           artifact: Extension
@@ -125,5 +125,54 @@ stages:
       steps:
         - checkout: none
         - download: current
+          artifact: Sources
+        - download: current
           artifact: Extension
-        
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Sources'
+            Contents: '**/assets/LogoWithText.svg'
+            TargetFolder: '$(Build.ArtifactsDirectory)'
+            flattenFolders: true
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Sources'
+            Contents: '**/docs/VisualStudio.md'
+            TargetFolder: '$(Build.ArtifactsDirectory)'
+            flattenFolders: true
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Pipeline.Workspace)/Extension'
+            Contents: '**/bin/**/Rappd.VisualStudio.vsix'
+            TargetFolder: '$(Build.ArtifactsDirectory)'
+            flattenFolders: true
+        - task: file-creator@6
+          inputs:
+            filepath: '$(Build.ArtifactsDirectory)/Rappd.VisualStudio.json'
+            filecontent: |
+              {
+                  "$schema": "http://json.schemastore.org/vsix-publish",
+                  "categories": [ "coding" ],
+                  "identity": {
+                      "internalName": "Rappd.VisualStudio"
+                  },
+                  "overview": "VisualStudio.md",
+                  "priceCategory": "free",
+                  "publisher": "Stecx",
+                  "private": false,
+                  "qna": true,
+                  "repo": "https://github.com/StecxDE/Rappd",
+                  "assetFiles": [
+                    {
+                        "pathOnDisk": "LogoWithText.svg",
+                        "targetPath": "../assets/LogoWithText.svg"
+                    }
+                  ]
+              }
+            fileoverwrite: true
+        - task: PublishVisualStudioExtension@4
+          inputs:
+            connectedServiceName: 'Marketplace'
+            vsixFile: '$(Build.ArtifactsDirectory)/Rappd.VisualStudio.vsix'
+            manifestFile: '$(Build.ArtifactsDirectory)/Rappd.VisualStudio.json'
+            publisherId: 'Stecx'
