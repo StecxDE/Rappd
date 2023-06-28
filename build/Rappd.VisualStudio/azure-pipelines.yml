@@ -121,7 +121,7 @@ stages:
     - job: PushMarketplace
       displayName: Push Marketplace
       dependsOn: PackExtension
-      condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master', 'refs/heads/release'))
+      condition: and(succeeded(), in(variables['Build.SourceBranch'], 'refs/heads/master'))
       steps:
         - checkout: none
         - download: current
