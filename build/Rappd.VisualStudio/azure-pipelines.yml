@@ -40,7 +40,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            $manifestPath = @(Get-ChildItem -Path '$(Pipeline.Workspace)/Sources/src' -Recurse -Include 'source.extension.vsixmanifest' | Select-Object -first 1)
+            $manifestPath = @(Get-ChildItem -Path '$(Build.SourcesDirectory)/src' -Recurse -Include 'source.extension.vsixmanifest' | Select-Object -first 1)
             $manifestXml = [xml](Get-Content $manifestPath -Raw)
             $manifestXml.PackageManifest.Metadata.Identity.Version = $env:Version
             $manifestXml.save($manifestPath)
