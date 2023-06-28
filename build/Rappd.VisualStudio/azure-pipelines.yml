@@ -114,7 +114,7 @@ stages:
         - task: CopyFiles@2
           inputs:
             SourceFolder: '$(Build.SourcesDirectory)'
-            Contents: '**/bin/**/*.vsix'
+            Contents: '**/bin/**/Rappd.VisualStudio.vsix'
             TargetFolder: '$(Build.BinariesDirectory)'
         - publish: $(Build.BinariesDirectory)
           artifact: Extension
