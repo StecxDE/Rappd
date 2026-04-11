@@ -1,4 +1,4 @@
-﻿namespace Rappd.Data.Tests;
+﻿namespace Rappd.Data.AspNet.Tests.Classes;
 
 public interface ITestInterface
 {

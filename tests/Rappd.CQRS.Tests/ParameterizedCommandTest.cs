@@ -10,7 +10,7 @@ public class ParameterizedCommandTest
         ParameterizedTestCommandHandler.Result = (i) => i == 0 ? CQRS.Results.Ok : throw new ArgumentException();
 
         // Act
-        var response = await ParameterizedTestCommand.SendAsync(parameter);
+        var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The command was not successful.");
@@ -24,7 +24,7 @@ public class ParameterizedCommandTest
         ParameterizedTestCommandHandler.Result = (i) => i == 0 ? CQRS.Results.Error : throw new ArgumentException();
 
         // Act
-        var response = await ParameterizedTestCommand.SendAsync(parameter);
+        var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The command was successful.");
@@ -38,7 +38,7 @@ public class ParameterizedCommandTest
         ParameterizedTestCommandHandler.Result = (i) => i == 0 ? throw new Exception() : CQRS.Results.Error;
 
         // Act
-        var response = await ParameterizedTestCommand.SendAsync(parameter);
+        var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The command was successful.");

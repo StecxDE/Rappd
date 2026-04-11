@@ -64,10 +64,10 @@ namespace Rappd.Api
         {
             ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-            context.Response.Headers.Add(CustomHttpHeaders.PAGE, _page.ToString());
-            context.Response.Headers.Add(CustomHttpHeaders.PAGE_SIZE, _pageSize.ToString());
-            context.Response.Headers.Add(CustomHttpHeaders.TOTAL_PAGES, _totalPages.ToString());
-            context.Response.Headers.Add(CustomHttpHeaders.TOTAL_COUNT, _totalCount.ToString());
+            context.Response.Headers.Append(CustomHttpHeaders.PAGE, _page.ToString());
+            context.Response.Headers.Append(CustomHttpHeaders.PAGE_SIZE, _pageSize.ToString());
+            context.Response.Headers.Append(CustomHttpHeaders.TOTAL_PAGES, _totalPages.ToString());
+            context.Response.Headers.Append(CustomHttpHeaders.TOTAL_COUNT, _totalCount.ToString());
 
             context.Response.StatusCode = StatusCode;
 
