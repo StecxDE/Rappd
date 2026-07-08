@@ -171,10 +171,11 @@ stages:
         - checkout: none
         - download: current
           artifact: Packages
-        - task: NuGetToolInstaller@1
-        - task: NuGetAuthenticate@1
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 10.x
           inputs:
-            nuGetServiceConnections: 'nuget.org'
+            packageType: 'sdk'
+            version: '10.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'push'
