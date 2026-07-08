@@ -9,7 +9,7 @@ public class CommandTest
         TestCommandHandler.Result = () => CQRS.Results.Ok;
 
         // Act
-        var response = await TestCommand.SendAsync();
+        var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The command was not successful.");
@@ -22,7 +22,7 @@ public class CommandTest
         TestCommandHandler.Result = () => CQRS.Results.Error;
 
         // Act
-        var response = await TestCommand.SendAsync();
+        var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The command was successful.");
@@ -35,7 +35,7 @@ public class CommandTest
         TestCommandHandler.Result = () => throw new Exception();
 
         // Act
-        var response = await TestCommand.SendAsync();
+        var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The command was successful.");

@@ -7,7 +7,7 @@ namespace Rappd.CQRS.AspNet.Sample.Pages
     public class IndexModel : PageModel
     {
         [BindProperty]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
 
         public async Task OnGetAsync()
             => Message = await GetMessage.SendAsync();

@@ -1,30 +1,26 @@
 ﻿using Microsoft.AspNetCore.TestHost;
+using Rappd.CQRS.AspNet.Tests.Classes;
+using System.Data.Common;
 
-namespace Rappd.CQRS.AspNet.Tests;
+[assembly: AssemblyFixture(typeof(TestServerFixture))]
 
-public class TestServerFixture : IDisposable
+namespace Rappd.CQRS.AspNet.Tests.Classes
 {
-    public TestServer TestServer { get; }
-
-    public TestServerFixture()
+    public class TestServerFixture
     {
-        TestServer = new TestServer(new WebHostBuilder()
-            .ConfigureServices(services =>
-            {
-                services.AddSingleton<ITestService, TestService>();
-            })
-            .UseEnvironment("Development")
-            .Configure(app =>
-            {
-                app.ConfigureCqrs();
-            })
-        );
-    }
+        public TestServer TestServer { get; }
 
-    public void Dispose()
-    {
-        TestServer.Dispose();
+        public TestServerFixture()
+        {
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+            {
+                EnvironmentName = "Development"
+            });
+            builder.Services.AddSingleton<ITestService, TestService>();
+            builder.WebHost.UseTestServer();
+            var app = builder.Build();
+            app.ConfigureCqrs();
+            TestServer = app.GetTestServer();
+        }
     }
 }
-[CollectionDefinition(nameof(TestServerCollection))]
-public class TestServerCollection : ICollectionFixture<TestServerFixture> { }

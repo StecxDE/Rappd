@@ -1,4 +1,6 @@
-﻿namespace Rappd.CQRS.Tests;
+﻿using System.Xml.Xsl;
+
+namespace Rappd.CQRS.Tests;
 
 public class HandlerSelectionTest
 {
@@ -11,7 +13,7 @@ public class HandlerSelectionTest
         TestHandlerSelectionAttribute.Values = new[] { value };
 
         // Act
-        var response = await SingleHandlerSelectionTestQuery.SendAsync();
+        var response = await SingleHandlerSelectionTestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The query was not successful.");
@@ -26,7 +28,7 @@ public class HandlerSelectionTest
         TestHandlerSelectionAttribute.Values = new[] { value };
 
         // Act
-        var response = await SingleHandlerSelectionTestQuery.SendAsync();
+        var response = await SingleHandlerSelectionTestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");
@@ -42,7 +44,7 @@ public class HandlerSelectionTest
         TestHandlerSelectionAttribute.Values = new[] { value1, value2 };
 
         // Act
-        var response = await MultipleHandlerSelectionTestQuery.SendAsync();
+        var response = await MultipleHandlerSelectionTestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The query was not successful.");
@@ -57,7 +59,7 @@ public class HandlerSelectionTest
         TestHandlerSelectionAttribute.Values = new[] { value1, value2 };
 
         // Act
-        var response = await MultipleHandlerSelectionTestQuery.SendAsync();
+        var response = await MultipleHandlerSelectionTestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");

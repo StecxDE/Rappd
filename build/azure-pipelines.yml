@@ -41,10 +41,10 @@ stages:
     steps:
     - checkout: self
     - task: UseDotNet@2
-      displayName: Install .NET SDK 6.x
+      displayName: Install .NET SDK 10.x
       inputs:
         packageType: 'sdk'
-        version: '6.x'
+        version: '10.x'
     - task: DotNetCoreCLI@2
       displayName: Restore NuGet-Packages
       inputs:
@@ -89,10 +89,10 @@ stages:
         Contents: '**'
         TargetFolder: '$(Build.Repository.LocalPath)'
     - task: UseDotNet@2
-      displayName: Install .NET SDK 6.x
+      displayName: Install .NET SDK 10.x
       inputs:
         packageType: 'sdk'
-        version: '6.x'
+        version: '10.x'
     - task: DotNetCoreCLI@2
       displayName: Run test projects
       inputs:
@@ -118,10 +118,10 @@ stages:
         artifactName: 'test'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
-      displayName: Install .NET SDK 6.x
+      displayName: Install .NET SDK 10.x
       inputs:
         packageType: 'sdk'
-        version: '6.x'
+        version: '10.x'
     - task: DotNetCoreCLI@2
       displayName: Install dotnet-coverage tool
       inputs:
@@ -184,10 +184,10 @@ stages:
         artifactName: 'merged'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: UseDotNet@2
-      displayName: Install .NET SDK 7.0.x
+      displayName: Install .NET SDK 10.x
       inputs:
         packageType: 'sdk'
-        version: '7.0.x'
+        version: '10.x'
     - task: PublishTestResults@2
       displayName: Upload test results
       inputs:

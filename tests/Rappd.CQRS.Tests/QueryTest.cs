@@ -9,7 +9,7 @@ public class QueryTest
         TestQueryHandler.Result = () => 0;
 
         // Act
-        var response = await TestQuery.SendAsync();
+        var response = await TestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The query was not successful.");
@@ -22,7 +22,7 @@ public class QueryTest
         TestQueryHandler.Result = () => CQRS.Results.Error;
 
         // Act
-        var response = await TestQuery.SendAsync();
+        var response = await TestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");
@@ -35,7 +35,7 @@ public class QueryTest
         TestQueryHandler.Result = () => throw new Exception();
 
         // Act
-        var response = await TestQuery.SendAsync();
+        var response = await TestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");

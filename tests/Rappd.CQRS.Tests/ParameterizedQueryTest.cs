@@ -10,7 +10,7 @@ public class ParameterizedQueryTest
         ParameterizedTestQueryHandler.Result = i => i;
 
         // Act
-        var response = await ParameterizedTestQuery.SendAsync(parameter);
+        var response = await ParameterizedTestQuery.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The query was not successful.");
@@ -24,7 +24,7 @@ public class ParameterizedQueryTest
         ParameterizedTestQueryHandler.Result = i => i == 0 ? CQRS.Results.Error : i;
 
         // Act
-        var response = await ParameterizedTestQuery.SendAsync(parameter);
+        var response = await ParameterizedTestQuery.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");
@@ -38,7 +38,7 @@ public class ParameterizedQueryTest
         ParameterizedTestQueryHandler.Result = i => i == 0 ? throw new Exception() : i;
 
         // Act
-        var response = await ParameterizedTestQuery.SendAsync(parameter);
+        var response = await ParameterizedTestQuery.SendAsync(parameter, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(response.IsSuccess, "The query was successful.");
