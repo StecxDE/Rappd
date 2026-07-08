@@ -176,9 +176,6 @@ stages:
           inputs:
             packageType: 'sdk'
             version: '10.x'
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'custom'
-            projects: '$(Pipeline.Workspace)/Packages/*.nupkg'
-            custom: 'nuget push'
-            arguments: '-s https://api.nuget.org/v3/index.json -k $(NuGetApiKey)'
+        - script: 'donet nuget push "$(Pipeline.Workspace)/Packages/*.nupkg" -k $API_KEY -s https://api.nuget.org/v3/index.json'
+          env:
+            API_KEY: $(NuGetApiKey)
