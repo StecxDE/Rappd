@@ -16,10 +16,10 @@ stages:
       - checkout: self
         fetchDepth: 0
       - task: UseDotNet@2
-        displayName: Install .NET SDK 6.x
+        displayName: Install .NET SDK 10.x
         inputs:
           packageType: 'sdk'
-          version: '6.x'
+          version: '10.x'
       - task: AVersion@1
         inputs:
           repositoryPath: '$(Build.SourcesDirectory)'
