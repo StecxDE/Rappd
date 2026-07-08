@@ -176,6 +176,6 @@ stages:
           inputs:
             packageType: 'sdk'
             version: '10.x'
-        - script: 'donet nuget push "$(Pipeline.Workspace)/Packages/*.nupkg" -k $API_KEY -s https://api.nuget.org/v3/index.json'
+        - script: 'dotnet nuget push "$(Pipeline.Workspace)/Packages/*.nupkg" -k $API_KEY -s https://api.nuget.org/v3/index.json'
           env:
             API_KEY: $(NuGetApiKey)
