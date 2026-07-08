@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>$(AssemblyName)</PackageId>
+		<Title>$(AssemblyName)</Title>
+		<Version>1.0.0</Version>
+		<Authors>ZeiTee</Authors>
+		<Company>Stecx</Company>
+		<Product>Rappd</Product>
+		<Description>The Data part of the Rappd Framework helps with the implementation and handling of data classes.</Description>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageTags>rappd;data</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/StecxDE/Rappd</RepositoryUrl>
+		<PackageProjectUrl>https://stecx.de/Rappd</PackageProjectUrl>
+		<PackageIcon>Logo_128x128.png</PackageIcon>
+		<Copyright>Copyright © Zeitler Andreas 2023</Copyright>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\assets\Logo_128x128.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="$(OutputPath)\Rappd.Data.Generators.dll">
+			<Pack>True</Pack>
+			<PackagePath>analyzers/dotnet/cs</PackagePath>
+			<Visible>false</Visible>
+		</None>
+		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
+			<Pack>True</Pack>
+			<PackagePath>analyzers/dotnet/cs</PackagePath>
+			<Visible>false</Visible>
+		</None>
+		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
+			<Pack>True</Pack>
+			<PackagePath>lib/$(TargetFramework)</PackagePath>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Rappd.Data.Generators\Rappd.Data.Generators.csproj">
+		  <PrivateAssets>All</PrivateAssets>
+	  </ProjectReference>
+		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+	</ItemGroup>
+	
+</Project>
