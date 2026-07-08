@@ -172,7 +172,10 @@ stages:
         - download: current
           artifact: Packages
         - task: NuGetToolInstaller@1
-        - task: NuGetCommand@2
+        - task: NuGetAuthenticate@1
+          inputs:
+            nuGetServiceConnections: 'nuget.org'
+        - task: DotNetCoreCLI@2
           inputs:
             command: 'push'
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
