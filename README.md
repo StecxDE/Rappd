@@ -13,6 +13,8 @@
 ## Features
 
 -   [CQRS](#cqrs---command-and-query-responsibility-segregation)
+-   [Data](#data)
+-   [Api](#api)
 
 ## CQRS - Command and Query Responsibility Segregation
 
@@ -57,3 +59,74 @@ var response = await TestQuery.SendAsync();
 ```
 
 #### For the full documentation of this feature look at the docs: [Docs: CQRS](/docs/CQRS.md)
+
+## Data
+
+The Data part of the Rappd Framework helps with the implementation and handling of data classes.
+
+### Installation
+
+Add the respective package to your project:
+
+AspNet (DI support)
+```bash
+PM> Install-Package Rappd.Data.AspNet
+```
+
+Direct
+```bash
+PM> Install-Package Rappd.Data
+```
+
+### Usage
+
+1.  Define an interface
+
+```csharp
+public interface IPerson
+{
+    string GivenName { get; }
+    string LastName { get; }
+}
+```
+
+2.  Define an imlementation
+
+```csharp
+[Implements<IPerson>]
+internal partial record Person;
+```
+
+3.  Deserialize data directly as interface
+
+```csharp
+var factory = new InterfaceConverterFactory();
+var options = new JsonSerializerOptions();
+options.Converters.Add(factory);
+
+var personJson = @"
+    {
+        ""GivenName"": ""Sample"",
+        ""LastName"": ""Person""
+    }
+";
+var person = JsonSerializer.Deserialize<IPerson>(personJson, options);
+```
+
+#### For the full documentation of this feature look at the docs: [Docs: Data](/docs/Data.md)
+
+## Api
+
+The Api part of the Rappd Framework is a fast and simple feature used to implement rest apis.
+
+### Installation
+
+Add the respective package to your project:
+
+```bash
+PM> Install-Package Rappd.Api
+```
+
+### Usage
+
+#### For the full documentation of this feature look at the docs: [Docs: Api](/docs/Api.md)

@@ -1,4 +1,6 @@
-﻿namespace Rappd.Data
+﻿using System;
+
+namespace Rappd.Data
 {
     /// <summary>
     /// Indicates that a class implements a interface.

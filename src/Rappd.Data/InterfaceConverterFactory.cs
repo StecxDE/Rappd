@@ -12,15 +12,6 @@ namespace Rappd.Data
     public class InterfaceConverterFactory : JsonConverterFactory
     {
         /// <summary>
-        /// The internal store for all currently known interface types and their corresponding converter type.
-        /// </summary>
-        private Dictionary<Type, Type> _knownTypes = new Dictionary<Type, Type>();
-        /// <summary>
-        /// The internal store for all currently known interface types and their corresponding implementation type.
-        /// </summary>
-        private Dictionary<Type, Type> _knownTypes2 = new Dictionary<Type, Type>();
-
-        /// <summary>
         /// Enables that properties not contained in the interface should be serialized/deserialized.
         /// </summary>
         public bool EnableAdditionalProperties { get; } = false;
@@ -41,7 +32,7 @@ namespace Rappd.Data
         public InterfaceConverterFactory(params Assembly[] assemblies)
         {
             // Find all types marked with the implements attribute
-            foreach (var knownType in assemblies.SelectMany(a => a.GetTypes().Select(t => (t.GetCustomAttribute(typeof(ImplementsAttribute<>)), t))))
+            foreach (var knownType in assemblies.SelectMany(a => a.GetTypes().Select(t => (t.GetCustomAttribute(typeof(ImplementsAttribute)), t))))
             {
                 // Get the foud implements attribute
                 if (knownType.Item1 is ImplementsAttribute attribute)
@@ -49,12 +40,8 @@ namespace Rappd.Data
                     var interfaceType = attribute.InterfaceType;
                     var implementationType = knownType.t;
 
-                    // Check if we don't know the interface already and the given type implements the interface
-                    if (!_knownTypes.ContainsKey(interfaceType) && implementationType.IsAssignableTo(interfaceType))
-                        _knownTypes.Add(interfaceType, typeof(InterfaceConverter<,>).MakeGenericType(interfaceType, implementationType));
-                    // Check if we don't know the interface already and the given type implements the interface
-                    if (!_knownTypes2.ContainsKey(interfaceType) && implementationType.IsAssignableTo(interfaceType))
-                        _knownTypes2.Add(interfaceType, implementationType);
+                    // Register the types
+                    KnownTypesRegistry.Instance.Register(interfaceType, implementationType);
                 }
             }
         }
@@ -65,7 +52,7 @@ namespace Rappd.Data
         /// <param name="typeToConvert">The type is checked as to whether it can be converted.</param>
         /// <returns>True if the type can be converted, false otherwise.</returns>
         public override bool CanConvert(Type typeToConvert)
-            => _knownTypes.ContainsKey(typeToConvert) && _knownTypes2.ContainsKey(typeToConvert);
+            => KnownTypesRegistry.Instance.IsInterfaceKnown(typeToConvert);
         /// <summary>
         /// Creates a converter for the given <see cref="Type"/>.
         /// </summary>
@@ -78,8 +65,11 @@ namespace Rappd.Data
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
             // Check if we don't know the interface
-            if (!_knownTypes.TryGetValue(typeToConvert, out var converterType) || !_knownTypes2.TryGetValue(typeToConvert, out var implementationType))
+            if (!KnownTypesRegistry.Instance.TryGetImplementationType(typeToConvert, out var implementationType))
                 return null;
+
+            // Create the converter type
+            var converterType = typeof(InterfaceConverter<,>).MakeGenericType(typeToConvert, implementationType);
 
             // Create the converter for the interface
             return Activator.CreateInstance(converterType, [EnableAdditionalProperties]) as JsonConverter;

@@ -13,9 +13,9 @@
 		<Authors>ZeiTee</Authors>
 		<Company>Stecx</Company>
 		<Product>Rappd</Product>
-		<Description></Description>
+		<Description>The Data part of the Rappd Framework helps with the implementation and handling of data classes.</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-		<PackageTags>rappd;cqrs</PackageTags>
+		<PackageTags>rappd;data</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/StecxDE/Rappd</RepositoryUrl>
 		<PackageProjectUrl>https://stecx.de/Rappd</PackageProjectUrl>
