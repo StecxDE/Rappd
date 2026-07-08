@@ -1,25 +1,24 @@
-﻿using Microsoft.AspNetCore.TestHost;
+﻿using Rappd.CQRS.AspNet.Tests.Classes;
 
 namespace Rappd.CQRS.AspNet.Tests;
 
-[Collection(nameof(TestServerCollection))]
 public class DependencyInjectionTest
 {
-    private readonly TestServer _server;
+    private readonly TestServerFixture _testServerFixture;
 
-    public DependencyInjectionTest(TestServerFixture fixture)
+    public DependencyInjectionTest(TestServerFixture testServerFixture)
     {
-        _server = fixture.TestServer;
+        _testServerFixture = testServerFixture;
     }
 
     [Fact]
     public async Task DependencyInjection_Successful_ReturnsTestServiceResult()
     {
         // Arrange
-        var testService = _server.Services.GetRequiredService<ITestService>();
+        var testService = _testServerFixture.TestServer.Services.GetRequiredService<ITestService>();
 
         // Act
-        var response = await TestQuery.SendAsync();
+        var response = await TestQuery.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.IsSuccess, "The query was not successful.");

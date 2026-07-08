@@ -51,10 +51,10 @@ stages:
       - download: current
         artifact: Sources
       - task: UseDotNet@2
-        displayName: Install .NET SDK 6.x
+        displayName: Install .NET SDK 10.x
         inputs:
           packageType: 'sdk'
-          version: '6.x'
+          version: '10.x'
       - task: DotNetCoreCLI@2
         inputs:
           command: 'restore'
@@ -86,10 +86,10 @@ stages:
           artifact: Binaries
           patterns: '!**/ref/**'
         - task: UseDotNet@2
-          displayName: Install .NET SDK 6.x
+          displayName: Install .NET SDK 10.x
           inputs:
             packageType: 'sdk'
-            version: '6.x'
+            version: '10.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'test'
@@ -124,10 +124,10 @@ stages:
             Contents: '**'
             TargetFolder: '$(Build.SourcesDirectory)'
         - task: UseDotNet@2
-          displayName: Install .NET SDK 6.x
+          displayName: Install .NET SDK 10.x
           inputs:
             packageType: 'sdk'
-            version: '6.x'
+            version: '10.x'
         - task: DotNetCoreCLI@2
           inputs:
             command: 'restore'
@@ -152,8 +152,12 @@ stages:
         - checkout: none
         - download: current
           artifact: Packages
-        - task: NuGetToolInstaller@1
-        - task: NuGetCommand@2
+        - task: UseDotNet@2
+          displayName: Install .NET SDK 10.x
+          inputs:
+            packageType: 'sdk'
+            version: '10.x'
+        - task: DotNetCoreCLI@2
           inputs:
             command: 'push'
             packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
