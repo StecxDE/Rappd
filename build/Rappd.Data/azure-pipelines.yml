@@ -178,7 +178,7 @@ stages:
             version: '10.x'
         - task: DotNetCoreCLI@2
           inputs:
-            command: 'push'
-            packagesToPush: '$(Pipeline.Workspace)/Packages/*.nupkg'
-            nuGetFeedType: 'external'
-            publishFeedCredentials: 'nuget.org'
+            command: 'custom'
+            projects: '$(Pipeline.Workspace)/Packages/*.nupkg'
+            custom: 'nuget push'
+            arguments: '-s https://api.nuget.org/v3/index.json -k $(NuGetApiKey)'
