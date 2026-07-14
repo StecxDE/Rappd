@@ -7,25 +7,23 @@ public abstract class Result { }
 /// <summary>
 /// Represents an error occured in a request handler.
 /// </summary>
-public abstract class ErrorResult : Result
+/// <remarks>
+/// Initializes a new instance of the <see cref="ErrorResult"/> class with a message describing the error.
+/// </remarks>
+/// <param name="message">A message describing the error.</param>
+public abstract class ErrorResult(string message) : Result
 {
     /// <summary>
     /// A message describing the error.
     /// </summary>
-    public string Message { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ErrorResult"/> class with a message describing the error.
-    /// </summary>
-    /// <param name="message">A message describing the error.</param>
-    protected ErrorResult(string message)
-        => Message = message;
+    public string Message { get; } = message;
 
     /// <summary>
     /// When overridden in a derived class, gets a exception describing the error.
     /// </summary>
     /// <returns>A exception describing the error.</returns>
-    public abstract Exception ToException();
+    public virtual Exception ToException()
+        => new(Message);
     /// <summary>
     /// Returns a string that represents the current error result.
     /// </summary>
@@ -37,19 +35,16 @@ public abstract class ErrorResult : Result
 /// Represents the result of a request handler containing returned data.
 /// </summary>
 /// <typeparam name="TData">The type of the data returned by the request handler.</typeparam>
-public abstract class Result<TData> : Result
+/// <remarks>
+/// Initializes a new instance of the <see cref="Result{TData}"/> class with returned data.
+/// </remarks>
+/// <param name="data">The data returned by the request.</param>
+public abstract class Result<TData>(TData data) : Result
 {
     /// <summary>
     /// The data returned by the request.
     /// </summary>
-    public TData Data { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Result{TData}"/> class with returned data.
-    /// </summary>
-    /// <param name="data">The data returned by the request.</param>
-    protected Result(TData data)
-        => Data = data;
+    public TData Data { get; } = data;
 
     /// <summary>
     /// Implicitly converts the given data to the default result of a successful request containing returned data.
@@ -194,34 +189,42 @@ public sealed class OkResult<TData> : Result<TData>
     internal OkResult(TData data) : base(data) { }
 }
 
+#pragma warning disable CA1822 // Mark members as static
 /// <summary>
 /// Defines common results.
 /// </summary>
-public static class Results
+public sealed class CommonResults
 {
     /// <summary>
     /// The default result of a successful request.
     /// </summary>
-    public static Result Ok => new OkResult();
+    public Result Ok => new OkResult();
     /// <summary>
     /// The default result of a unsuccessful request when no exception occurred.
     /// </summary>
-    public static ErrorResult Error => new UnknownErrorResult();
+    public ErrorResult Error => new UnknownErrorResult();
     /// <summary>
     /// The default result of a cancelled request.
     /// </summary>
-    public static ErrorResult Cancelled => new CancelledResult();
+    public ErrorResult Cancelled => new CancelledResult();
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Results"/> class.
+    /// </summary>
+    internal CommonResults() { }
+
     /// <summary>
     /// The default result of a successful request containing returned data.
     /// </summary>
     /// <typeparam name="TData">The type of the data to return.</typeparam>
     /// <param name="value">The value to be returned by the request.</param>
     /// <returns>A new instance of the <see cref="OkResult{TData}"/> class with returned data.</returns>
-    public static Result<TData> Data<TData>(TData value) => new OkResult<TData>(value);
+    public Result<TData> Data<TData>(TData value) => new OkResult<TData>(value);
     /// <summary>
     /// The default result of a unsuccessful request when an exception occurred.
     /// </summary>
     /// <param name="ex">The occurred exception.</param>
     /// <returns>A new instance of the <see cref="ExceptionResult"/> class with a occurred exception.</returns>
-    public static ErrorResult Exception(Exception ex) => new ExceptionResult(ex);
+    public ErrorResult Exception(Exception ex) => new ExceptionResult(ex);
 }
+#pragma warning restore CA1822 // Mark members as static

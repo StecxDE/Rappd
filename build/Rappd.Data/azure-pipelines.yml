@@ -58,13 +58,13 @@ stages:
       - task: DotNetCoreCLI@2
         inputs:
           command: 'restore'
-          projects: '$(Pipeline.Workspace)/Sources/@(src|test)/**/Rappd.Data*.csproj'
+          projects: '$(Pipeline.Workspace)/Sources/@(src|tests)/**/Rappd.Data*.csproj'
           feedsToUse: 'select'
           vstsFeed: '8ca3377a-8442-4cfd-a59e-3a4e0145faf9/978ff997-a2ff-4c4b-bb98-1dee8090e599'
       - task: DotNetCoreCLI@2
         inputs:
           command: 'build'
-          projects: '$(Pipeline.Workspace)/Sources/@(src|test)/**/Rappd.Data*.csproj'
+          projects: '$(Pipeline.Workspace)/Sources/@(src|tests)/**/Rappd.Data*.csproj'
           arguments: '-c Release --no-restore /p:AssemblyVersion=$(Major).$(Minor).0.0 /p:FileVersion=$(Major).$(Minor).$(Patch).$(Build)'
       - task: CopyFiles@2
         inputs:
@@ -93,7 +93,7 @@ stages:
         - task: DotNetCoreCLI@2
           inputs:
             command: 'test'
-            projects: '$(Pipeline.Workspace)/Binaries/test/**/Rappd.Data*.dll'
+            projects: '$(Pipeline.Workspace)/Binaries/tests/**/Rappd.Data*.dll'
             arguments: '-c Release --no-build'
 
 - stage: Publish

@@ -9,7 +9,7 @@ var factory = new InterfaceConverterFactory();
 var options = new JsonSerializerOptions();
 options.Converters.Add(factory);
 
-IWeatherData weatherData = new WeatherData
+IWeatherData weatherData = new WeatherData()
 {
     Location = "London",
     Time = DateTime.Now,

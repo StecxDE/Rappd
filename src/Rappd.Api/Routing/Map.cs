@@ -32,7 +32,7 @@ namespace Rappd.Api
         /// <summary>
         /// The conventions to apply.
         /// </summary>
-        public List<Action<EndpointBuilder>> Conventions { get; } = new();
+        public List<Action<EndpointBuilder>> Conventions { get; } = [];
 
         /// <summary>
         /// Creates a new <see cref="Map"/> with the given path, mapper and delegate.

@@ -12,11 +12,11 @@ namespace Rappd.Data.Generators.Tests
 
             // Create references for assemblies we require
             // We could add multiple references if required
-            IEnumerable<PortableExecutableReference> references = new[]
-            {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            var assemblies = Directory.EnumerateFiles(Path.GetDirectoryName(typeof(object).Assembly.Location) ?? "", "*.dll", SearchOption.AllDirectories);
+            IEnumerable<PortableExecutableReference> references = [
+                ..assemblies.Select(a => MetadataReference.CreateFromFile(a)),
                 MetadataReference.CreateFromFile(typeof(ImplementsAttribute).Assembly.Location)
-            };
+            ];
 
             // Create a Roslyn compilation for the syntax tree.
             CSharpCompilation compilation = CSharpCompilation.Create(
