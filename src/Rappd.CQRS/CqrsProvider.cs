@@ -13,7 +13,7 @@ public static class CqrsProvider
     /// <summary>
     /// The handler registry used to register and provide the handlers.
     /// </summary>
-    private static HandlerRegistry _registry = new(Array.Empty<Assembly>(), (t) => Activator.CreateInstance(t));
+    private static HandlerRegistry _registry = new([], (t) => Activator.CreateInstance(t));
 
     /// <summary>
     /// Sends a request.
@@ -109,7 +109,7 @@ public static class CqrsProvider
 
                 // Register all handler types for the given request type contained in all search assemblies
                 _handlerTypes.TryAdd(requestType, searchTagets.SelectMany(a =>
-                    a?.GetTypes().Where(t => GetRequestType(t) == requestType) ?? Array.Empty<Type>()
+                    a?.GetTypes().Where(t => GetRequestType(t) == requestType) ?? []
                 ));
             }
 
@@ -133,7 +133,7 @@ public static class CqrsProvider
             // Get a request type for given handler type if possible
             var requestType = GetRequestType(handlerType) ?? throw new ArgumentException("The type is not a handler.", nameof(THandler));
             // Add the type as a handler for the request
-            _handlerTypes.AddOrUpdate(requestType, (_) => new[] { handlerType }, (_, e) => e.Append(handlerType));
+            _handlerTypes.AddOrUpdate(requestType, (_) => [handlerType], (_, e) => e.Append(handlerType));
         }
         /// <summary>
         /// Gets a handler for the given request type

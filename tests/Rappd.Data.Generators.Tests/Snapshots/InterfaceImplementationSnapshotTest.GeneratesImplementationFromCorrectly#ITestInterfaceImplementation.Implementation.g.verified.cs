@@ -1,7 +1,7 @@
-﻿//HintName: TestInterfaceImplementation.Implementation.g.cs
-namespace Rappd.Data.Implementations
+﻿//HintName: ITestInterfaceImplementation.Implementation.g.cs
+namespace Rappd.Data.InterfaceImplementations
 {
-    public partial record TestInterfaceImplementation : Rappd.Data.Tests.ITestInterface
+    public partial record ITestInterfaceImplementation : Rappd.Data.Tests.ITestInterface
     {
         public System.String Name { get; init; }
         public void TestMethod()

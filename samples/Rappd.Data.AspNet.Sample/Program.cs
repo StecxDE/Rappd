@@ -1,6 +1,5 @@
 using Rappd.Data;
 using Rappd.Data.AspNet.Sample;
-using Rappd.Data.Implementations;
 
 [assembly: ImplementsFrom<Program>]
 
@@ -17,12 +16,12 @@ app.UseHttpsRedirection();
 
 app.MapGet("/weather", () =>
 {
-    return new WeatherDataImplementation
+    return Implementations.Create<IWeatherData>(new()
     {
         Location = "London",
         Time = DateTime.Now,
         Temperature = Random.Shared.Next(10, 20)
-    };
+    });
 });
 app.MapPost("/waether", (IWeatherData waether) =>
 {

@@ -52,6 +52,10 @@ public abstract record CommandHandler<TRequest> : Handler<TRequest, CommandRespo
     where TRequest : Command<TRequest>
 {
     /// <summary>
+    /// Utility to access common results.
+    /// </summary>
+    protected CommonResults Results { get; } = new CommonResults();
+    /// <summary>
     /// The method handling the request.
     /// </summary>
     /// <param name="cancellationToken">The provided cancellation token.</param>
@@ -91,6 +95,10 @@ public abstract record CommandHandler<TRequest> : Handler<TRequest, CommandRespo
 public abstract record QueryHandler<TRequest, TData> : Handler<TRequest, QueryResponse<TData>>
     where TRequest : Query<TRequest, TData>
 {
+    /// <summary>
+    /// Utility to access common results.
+    /// </summary>
+    protected CommonResults Results { get; } = new CommonResults();
     /// <summary>
     /// The method handling the request.
     /// </summary>
@@ -134,6 +142,10 @@ public abstract record Handler<TRequest, TArguments, TResponse> : IHandler<Reque
     where TRequest : Request<TRequest, TArguments, TResponse>
     where TResponse : Response
 {
+    /// <summary>
+    /// Utility to access common results.
+    /// </summary>
+    protected CommonResults Results { get; } = new CommonResults();
     /// <summary>
     /// The arguments provided with the request.
     /// </summary>

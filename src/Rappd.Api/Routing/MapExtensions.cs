@@ -56,7 +56,8 @@ namespace Rappd.Api
         /// <param name="delegate">The delegate executed when the endpoint is matched.</param>
         /// <returns>A <see cref="Api.Map"/> that can be added to the <see cref="IEndpointConventionBuilder"/>.</returns>
         private static Map Map(string path, string method, Delegate @delegate)
-            => new(path, (m, b, p) => b.MapMethods(CreatePattern(p, m.Path), new string[] { method }, m.Delegate), @delegate);
+            => new(path, (m, b, p) => b.MapMethods(CreatePattern(p, m.Path), [method], m.Delegate), @delegate);
+
         /// <summary>
         /// Creates a <see cref="Api.Map"/> that matches HTTP GET requests for the specified path.
         /// </summary>

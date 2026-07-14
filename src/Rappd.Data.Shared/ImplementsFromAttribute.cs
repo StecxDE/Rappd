@@ -7,7 +7,7 @@ namespace Rappd.Data
     /// <summary>
     /// Indicates that all interfaces from an assembly are automatically implemented.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = true)]
     public abstract class ImplementsFromAttribute : Attribute
     {
         /// <summary>
@@ -25,7 +25,7 @@ namespace Rappd.Data
     /// Indicates that all interfaces from an assembly are automatically implemented.
     /// </summary>
     /// <typeparam name="TAssembly">The type in the assembly to implement the interfaces from.</typeparam>
-    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = true)]
     public sealed class ImplementsFromAttribute<TAssembly> : ImplementsFromAttribute
     {
         /// <summary>

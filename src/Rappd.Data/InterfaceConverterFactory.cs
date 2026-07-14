@@ -32,16 +32,30 @@ namespace Rappd.Data
         public InterfaceConverterFactory(params Assembly[] assemblies)
         {
             // Find all types marked with the implements attribute
-            foreach (var knownType in assemblies.SelectMany(a => a.GetTypes().Select(t => (t.GetCustomAttribute(typeof(ImplementsAttribute)), t))))
+            foreach (var knownType in assemblies.SelectMany(a => a.GetTypes().Select(t => (
+                t.GetCustomAttribute<ImplementsAttribute>(),
+                t.GetCustomAttribute<BaseInterfaceAttribute>(),
+                t.GetCustomAttribute<SubInterfaceAttribute>(),
+                t
+            ))))
             {
-                // Get the foud implements attribute
-                if (knownType.Item1 is ImplementsAttribute attribute)
+                // Get the found implements attribute
+                if (knownType.Item1 is ImplementsAttribute implementsAttribute)
                 {
-                    var interfaceType = attribute.InterfaceType;
-                    var implementationType = knownType.t;
-
                     // Register the types
-                    KnownTypesRegistry.Instance.Register(interfaceType, implementationType);
+                    KnownTypesRegistry.Instance.RegisterImplementation(implementsAttribute.InterfaceType, knownType.t);
+                }
+                // Get the found base attribute
+                if (knownType.Item2 is BaseInterfaceAttribute baseAttribute && knownType.t.GetProperty(baseAttribute.DiscriminatorProperty) is PropertyInfo propertyInfo)
+                {
+                    // Register the type
+                    KnownTypesRegistry.Instance.RegisterBaseType(knownType.t, (propertyInfo.PropertyType, propertyInfo.Name));
+                }
+                // Get the found sub attribute
+                if (knownType.Item3 is SubInterfaceAttribute subAttribute)
+                {
+                    // Register the types
+                    KnownTypesRegistry.Instance.RegisterSubType(subAttribute.InterfaceType, subAttribute.DiscriminatorValue, knownType.t);
                 }
             }
         }
@@ -52,7 +66,7 @@ namespace Rappd.Data
         /// <param name="typeToConvert">The type is checked as to whether it can be converted.</param>
         /// <returns>True if the type can be converted, false otherwise.</returns>
         public override bool CanConvert(Type typeToConvert)
-            => KnownTypesRegistry.Instance.IsInterfaceKnown(typeToConvert);
+            => KnownTypesRegistry.Instance.IsInterfaceKnown(typeToConvert) || KnownTypesRegistry.Instance.IsBaseTypeKnown(typeToConvert);
         /// <summary>
         /// Creates a converter for the given <see cref="Type"/>.
         /// </summary>
@@ -64,15 +78,26 @@ namespace Rappd.Data
         /// </returns>
         public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            // Check if we don't know the interface
-            if (!KnownTypesRegistry.Instance.TryGetImplementationType(typeToConvert, out var implementationType))
+            // Check if we know the interface
+            if (KnownTypesRegistry.Instance.TryGetImplementation(typeToConvert, out var implementationType))
+            {
+                // Create the converter type
+                var converterType = typeof(InterfaceConverter<,>).MakeGenericType(typeToConvert, implementationType);
+
+                // Create the converter for the interface
+                return Activator.CreateInstance(converterType, [EnableAdditionalProperties]) as JsonConverter;
+            }
+            // Check if we know the base type
+            else if (KnownTypesRegistry.Instance.TryGetDiscriminator(typeToConvert, out var discriminatorType))
+            {
+                // Create the converter type
+                var converterType = typeof(BaseTypeConverter<>).MakeGenericType(typeToConvert);
+
+                // Create the converter for the base type
+                return Activator.CreateInstance(converterType, [discriminatorType]) as JsonConverter;
+            }
+            else
                 return null;
-
-            // Create the converter type
-            var converterType = typeof(InterfaceConverter<,>).MakeGenericType(typeToConvert, implementationType);
-
-            // Create the converter for the interface
-            return Activator.CreateInstance(converterType, [EnableAdditionalProperties]) as JsonConverter;
         }
 
         /// <summary>
@@ -153,6 +178,45 @@ namespace Rappd.Data
                     }
                     writer.WriteEndObject();
                 }
+            }
+        }
+
+        /// <summary>
+        /// The converter implementation used to convert base types to their sub type.
+        /// </summary>
+        /// <typeparam name="TBaseType">The base type to convert.</typeparam>
+        private class BaseTypeConverter<TBaseType> : JsonConverter<TBaseType>
+        {
+            public (Type type, string name) DiscriminatorProperty { get; }
+
+            public BaseTypeConverter((Type type, string name) discriminatorProperty)
+            {
+                DiscriminatorProperty = discriminatorProperty;
+            }
+
+            public override TBaseType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                using (var document = JsonDocument.ParseValue(ref reader))
+                {
+                    if (document.RootElement.TryGetProperty(options.PropertyNamingPolicy?.ConvertName(DiscriminatorProperty.name) ?? DiscriminatorProperty.name, out var jsonProperty) && jsonProperty.Deserialize(DiscriminatorProperty.type, options) is object discriminatorValue && KnownTypesRegistry.Instance.TryGetSubType(typeof(TBaseType), discriminatorValue, out var subType))
+                    {
+                        return (TBaseType?)document.Deserialize(subType, options);
+                    }
+                    else
+                        throw new NotSupportedException();
+                }
+            }
+
+            public override void Write(Utf8JsonWriter writer, TBaseType value, JsonSerializerOptions options)
+            {
+                if (typeof(TBaseType).GetProperty(DiscriminatorProperty.name)?.GetValue(value) is object discriminatorValue && KnownTypesRegistry.Instance.TryGetSubType(typeof(TBaseType), discriminatorValue, out var subType))
+                {
+                    var converterType = typeof(JsonConverter<>).MakeGenericType(subType);
+                    var converter = options.GetConverter(subType);
+                    converterType.GetMethod(nameof(JsonConverter<>.Write))?.Invoke(converter, [writer, value, options]);
+                }
+                else
+                    throw new NotSupportedException();
             }
         }
     }
