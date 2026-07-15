@@ -10,13 +10,13 @@ using Requests = Rappd.Api.Sample.Requests;
 
 await new LightApi(
     // Add services to the container
-    configure: static services => services
+    configure: static (config, services) => services
         .AddInterfaceHandling()
     // Configure the HTTP request pipeline
     , build: static (app, pipeline) => pipeline
         .ConfigureCqrs()
     // Define the HTTP endpoints
-    , map: static route => route.Map(
+    , map: static (config, route) => route.Map(
         "/weather".Get(async () =>
         {
             var response = await Requests.GetWeatherQuery.SendAsync();

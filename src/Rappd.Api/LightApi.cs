@@ -22,8 +22,9 @@ namespace Rappd.Api
         /// <summary>
         /// The type of the handler used to configure the <see cref="LightApi"/> services.
         /// </summary>
+        /// <param name="configuration">The configuration of the <see cref="LightApi"/>.</param>
         /// <param name="services">The collection used to configure the services of the <see cref="LightApi"/>.</param>
-        public delegate void ConfigurationHandler(IServiceCollection services);
+        public delegate void ConfigurationHandler(IConfiguration configuration, IServiceCollection services);
         /// <summary>
         /// The type of the handler used to build the <see cref="LightApi"/> request pipeline.
         /// </summary>
@@ -33,8 +34,9 @@ namespace Rappd.Api
         /// <summary>
         ///  The type of the handler used to map the <see cref="LightApi"/> routes.
         /// </summary>
+        /// <param name="configuration">The configuration of the <see cref="LightApi"/>.</param>
         /// <param name="route">The builder used to map the routes of the <see cref="LightApi"/>.</param>
-        public delegate void MapHandler(IEndpointRouteBuilder route);
+        public delegate void MapHandler(IConfiguration configuration, IEndpointRouteBuilder route);
 
         /// <summary>
         /// The handler used to initialize the <see cref="LightApi"/> configuration and logging.
@@ -73,12 +75,12 @@ namespace Rappd.Api
             // Initialize if possible
             _initialize?.Invoke(builder.Configuration, builder.Logging);
             // Configure if possible
-            _configure?.Invoke(builder.Services);
+            _configure?.Invoke(builder.Configuration, builder.Services);
             var app = builder.Build();
             // Build if possible
             _build?.Invoke((app.Services, app.Configuration, app.Environment, app.Lifetime, app.Logger, app.Urls), app);
             // Map if possible
-            _map?.Invoke(app);
+            _map?.Invoke(app.Configuration, app);
             await app.RunAsync();
         }
     }

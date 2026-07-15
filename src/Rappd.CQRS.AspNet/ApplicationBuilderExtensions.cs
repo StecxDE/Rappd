@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -33,7 +34,14 @@ public static class ApplicationBuilderExtensions
     public static IApplicationBuilder ConfigureCqrs(this IApplicationBuilder app, params Assembly[] assemblies)
     {
         CqrsProvider.Configure(assemblies, t => ActivatorUtilities.CreateInstance(app.ApplicationServices, t));
-        return app;
+        return app.Use((next) =>
+        {
+            return async (ctx) => {
+                CqrsProvider.SetTemporaryActivator(t => ActivatorUtilities.CreateInstance(ctx.RequestServices, t));
+                await next(ctx);
+                CqrsProvider.UnsetTemporaryActivator();
+            };
+        });
     }
 }
 

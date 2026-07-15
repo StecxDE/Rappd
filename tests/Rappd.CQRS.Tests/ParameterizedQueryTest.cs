@@ -21,7 +21,7 @@ public class ParameterizedQueryTest
     {
         // Arrange
         int parameter = 0;
-        ParameterizedTestQueryHandler.Result = i => i == 0 ? global::Rappd.CQRS.Results.Error : i;
+        ParameterizedTestQueryHandler.Result = i => i == 0 ? CommonResults.Results.Error : i;
 
         // Act
         var response = await ParameterizedTestQuery.SendAsync(parameter, TestContext.Current.CancellationToken);

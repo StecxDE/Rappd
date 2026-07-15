@@ -54,7 +54,7 @@ public abstract record CommandHandler<TRequest> : Handler<TRequest, CommandRespo
     /// <summary>
     /// Utility to access common results.
     /// </summary>
-    protected CommonResults Results { get; } = new CommonResults();
+    protected static CommonResults Results { get; } = CommonResults.Results;
     /// <summary>
     /// The method handling the request.
     /// </summary>
@@ -98,7 +98,7 @@ public abstract record QueryHandler<TRequest, TData> : Handler<TRequest, QueryRe
     /// <summary>
     /// Utility to access common results.
     /// </summary>
-    protected CommonResults Results { get; } = new CommonResults();
+    protected static CommonResults Results { get; } = CommonResults.Results;
     /// <summary>
     /// The method handling the request.
     /// </summary>
@@ -145,7 +145,7 @@ public abstract record Handler<TRequest, TArguments, TResponse> : IHandler<Reque
     /// <summary>
     /// Utility to access common results.
     /// </summary>
-    protected CommonResults Results { get; } = new CommonResults();
+    protected static CommonResults Results { get; } = CommonResults.Results;
     /// <summary>
     /// The arguments provided with the request.
     /// </summary>

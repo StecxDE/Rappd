@@ -6,7 +6,7 @@ public class CommandTest
     public async Task SendAsync_Successful_ReturnsOkResult()
     {
         // Arrange
-        TestCommandHandler.Result = () => Results.Ok;
+        TestCommandHandler.Result = () => CommonResults.Results.Ok;
 
         // Act
         var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);
@@ -19,7 +19,7 @@ public class CommandTest
     public async Task SendAsync_Failing_ReturnsUnknownErrorResult()
     {
         // Arrange
-        TestCommandHandler.Result = () => Results.Error;
+        TestCommandHandler.Result = () => CommonResults.Results.Error;
 
         // Act
         var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);
