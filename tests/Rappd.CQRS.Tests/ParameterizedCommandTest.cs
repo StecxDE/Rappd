@@ -7,7 +7,7 @@ public class ParameterizedCommandTest
     {
         // Arrange
         int parameter = 0;
-        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? Results.Ok : throw new ArgumentException();
+        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? CommonResults.Results.Ok : throw new ArgumentException();
 
         // Act
         var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);
@@ -21,7 +21,7 @@ public class ParameterizedCommandTest
     {
         // Arrange
         int parameter = 0;
-        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? Results.Error : throw new ArgumentException();
+        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? CommonResults.Results.Error : throw new ArgumentException();
 
         // Act
         var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);
@@ -35,7 +35,7 @@ public class ParameterizedCommandTest
     {
         // Arrange
         int parameter = 0;
-        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? throw new Exception() : Results.Error;
+        ParameterizedTestCommandHandler.Result = (i) => i == 0 ? throw new Exception() : CommonResults.Results.Error;
 
         // Act
         var response = await ParameterizedTestCommand.SendAsync(parameter, TestContext.Current.CancellationToken);

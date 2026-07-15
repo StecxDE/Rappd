@@ -36,6 +36,17 @@ public static class CqrsProvider
     public static void Configure(Assembly[] searchAssemblies, Func<Type, object?> activator)
         => _registry = new(searchAssemblies, activator);
     /// <summary>
+    /// Set temporary activator.
+    /// </summary>
+    /// <param name="activator">The function used to create the handler instances.</param>
+    public static void SetTemporaryActivator(Func<Type, object?> activator)
+        => _registry.TempActivator = activator;
+    /// <summary>
+    /// Set temporary activator.
+    /// </summary>
+    public static void UnsetTemporaryActivator()
+        => _registry.TempActivator = null;
+    /// <summary>
     /// Registers a handler type manually.
     /// </summary>
     /// <typeparam name="THandler">The handler type to register.</typeparam>
@@ -60,6 +71,10 @@ public static class CqrsProvider
         /// The function used to create the handler instances.
         /// </summary>
         private readonly Func<Type, object?> _activator;
+        /// <summary>
+        /// The temporary function used to create the handler instances.
+        /// </summary>
+        public Func<Type, object?>? TempActivator { get; set; } = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref=HandlerRegistry"/> class with assemblies and an activator.
@@ -153,7 +168,10 @@ public static class CqrsProvider
             // Try to activate the handler type
             try
             {
-                return _activator(handlerType) as IHandler<TRequest, TResponse> ?? throw new HandlerActivationException(handlerType);
+                if (TempActivator is not null)
+                    return TempActivator(handlerType) as IHandler<TRequest, TResponse> ?? throw new HandlerActivationException(handlerType);
+                else
+                    return _activator(handlerType) as IHandler<TRequest, TResponse> ?? throw new HandlerActivationException(handlerType);
             }
             catch (Exception ex)
             {

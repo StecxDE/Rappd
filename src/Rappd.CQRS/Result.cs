@@ -195,6 +195,8 @@ public sealed class OkResult<TData> : Result<TData>
 /// </summary>
 public sealed class CommonResults
 {
+    public static CommonResults Results { get; } = new CommonResults();
+
     /// <summary>
     /// The default result of a successful request.
     /// </summary>
@@ -211,7 +213,7 @@ public sealed class CommonResults
     /// <summary>
     /// Initializes a new instance of the <see cref="Results"/> class.
     /// </summary>
-    internal CommonResults() { }
+    private CommonResults() { }
 
     /// <summary>
     /// The default result of a successful request containing returned data.

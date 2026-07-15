@@ -133,7 +133,14 @@ namespace Rappd.Data
                         var instance = Activator.CreateInstance<TImplementation>();
 
                         var implementationProperties = typeof(TImplementation).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        var interfaceProperties = typeof(TInterface).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        List<PropertyInfo> interfaceProperties = [];
+                        void AddProperties(Type type)
+                        {
+                            interfaceProperties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+                            foreach (var @interface in type.GetInterfaces())
+                                AddProperties(@interface);
+                        }
+                        AddProperties(typeof(TInterface));
 
                         var properties = implementationProperties.Where(p => interfaceProperties.Any(ip => ip.Name == p.Name));
 
@@ -170,7 +177,14 @@ namespace Rappd.Data
                 else
                 {
                     writer.WriteStartObject();
-                    var properties = typeof(TInterface).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    List<PropertyInfo> properties = [];
+                    void AddProperties(Type type)
+                    {
+                        properties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+                        foreach (var @interface in type.GetInterfaces())
+                            AddProperties(@interface);
+                    }
+                    AddProperties(typeof(TInterface));
                     foreach (var property in properties)
                     {
                         writer.WritePropertyName(options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name);
