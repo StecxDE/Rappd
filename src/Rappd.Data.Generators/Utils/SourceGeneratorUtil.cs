@@ -57,7 +57,7 @@ namespace Rappd.Data.Generators.Utils
                     {
                         case PropertyToGenerate propertyToGenerate:
                             var property = propertyToGenerate.Property;
-                            sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(property.SetMethod is null ? "init" : "set")}; }}{(propertyToGenerate.Value is not null ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
+                            sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(property.SetMethod is null || property.SetMethod.IsInitOnly ? "init" : "set")}; }}{(propertyToGenerate.Value is not null ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
                             break;
 
                         case MethodToGenerate methodToGenerate:
