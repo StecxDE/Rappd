@@ -15,6 +15,6 @@ namespace Rappd.Data.Sample.Abstractions
     {
         public const string TYPE = "sub";
 
-        public string Name { get; }
+        public string Name { get; init; }
     }
 }
