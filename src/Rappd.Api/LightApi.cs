@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.Metrics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +19,10 @@ namespace Rappd.Api
         /// </summary>
         /// <param name="configuration">The builder used to initialize the configuration of the <see cref="LightApi"/>.</param>
         /// <param name="logging">The builder used to initialize the logging of the <see cref="LightApi"/>.</param>
-        public delegate void InitializationHandler(IConfigurationBuilder configuration, ILoggingBuilder logging);
+        /// <param name="webHost">The builder used to initialize the web host of the <see cref="LightApi"/>.</param>
+        /// <param name="host">The builder used to initialize the host of the <see cref="LightApi"/>.</param>
+        /// <param name="metrics">The builder used to initialize the metics of the <see cref="LightApi"/>.</param>
+        public delegate void InitializationHandler(IConfigurationBuilder configuration, ILoggingBuilder logging, IWebHostBuilder webHost, IHostBuilder host, IMetricsBuilder metrics);
         /// <summary>
         /// The type of the handler used to configure the <see cref="LightApi"/> services.
         /// </summary>
@@ -73,7 +77,7 @@ namespace Rappd.Api
         {
             var builder = WebApplication.CreateBuilder(args);
             // Initialize if possible
-            _initialize?.Invoke(builder.Configuration, builder.Logging);
+            _initialize?.Invoke(builder.Configuration, builder.Logging, builder.WebHost, builder.Host, builder.Metrics);
             // Configure if possible
             _configure?.Invoke(builder.Configuration, builder.Services);
             var app = builder.Build();
