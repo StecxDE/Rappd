@@ -42,6 +42,11 @@
 			<PackagePath>analyzers/dotnet/cs</PackagePath>
 			<Visible>false</Visible>
 		</None>
+		<None Include="$(OutputPath)\Rappd.Data.Annotations.dll">
+			<Pack>True</Pack>
+			<PackagePath>analyzers/dotnet/cs</PackagePath>
+			<Visible>false</Visible>
+		</None>
 		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
 			<Pack>True</Pack>
 			<PackagePath>lib/$(TargetFramework)</PackagePath>
@@ -56,6 +61,7 @@
 		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
+		<ProjectReference Include="..\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj"/>
 	</ItemGroup>
 	
 </Project>

@@ -11,6 +11,6 @@ public record GetMessageHandler(IHttpContextAccessor ContextAccessor) : GetMessa
             return session.GetString("Message") ?? string.Empty;
         }
         else
-            return Results.Error;
+            return Results.Failed;
     }
 }

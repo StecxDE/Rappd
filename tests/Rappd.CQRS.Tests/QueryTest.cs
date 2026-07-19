@@ -19,7 +19,7 @@ public class QueryTest
     public async Task SendAsync_Failing_ReturnsUnknownErrorResult()
     {
         // Arrange
-        TestQueryHandler.Result = () => CommonResults.Results.Error;
+        TestQueryHandler.Result = () => CommonResults.Results.Failed;
 
         // Act
         var response = await TestQuery.SendAsync(TestContext.Current.CancellationToken);

@@ -19,7 +19,7 @@ public class CommandTest
     public async Task SendAsync_Failing_ReturnsUnknownErrorResult()
     {
         // Arrange
-        TestCommandHandler.Result = () => CommonResults.Results.Error;
+        TestCommandHandler.Result = () => CommonResults.Results.Failed;
 
         // Act
         var response = await TestCommand.SendAsync(TestContext.Current.CancellationToken);

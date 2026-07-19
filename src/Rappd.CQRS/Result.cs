@@ -204,7 +204,7 @@ public sealed class CommonResults
     /// <summary>
     /// The default result of a unsuccessful request when no exception occurred.
     /// </summary>
-    public ErrorResult Error => new UnknownErrorResult();
+    public ErrorResult Failed => new UnknownErrorResult();
     /// <summary>
     /// The default result of a cancelled request.
     /// </summary>
@@ -222,6 +222,14 @@ public sealed class CommonResults
     /// <param name="value">The value to be returned by the request.</param>
     /// <returns>A new instance of the <see cref="OkResult{TData}"/> class with returned data.</returns>
     public Result<TData> Data<TData>(TData value) => new OkResult<TData>(value);
+    /// <summary>
+    /// A custom error result.
+    /// </summary>
+    /// <typeparam name="TError">The type of the error to return.</typeparam>
+    /// <returns>A new instance of the <see cref="TError"/> class.</returns>
+    public ErrorResult Error<TError>()
+        where TError : ErrorResult, new()
+        => new TError();
     /// <summary>
     /// The default result of a unsuccessful request when an exception occurred.
     /// </summary>

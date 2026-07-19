@@ -19,6 +19,9 @@
 		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
+		<ProjectReference Include="..\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>

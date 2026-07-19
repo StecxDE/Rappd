@@ -58,7 +58,10 @@ namespace Rappd.Data.Generators.Utils
                         if (candidateSymbol.FindImplementationForInterfaceMember(member) is null && (typeSymbol?.FindImplementationForInterfaceMember(member)) is null && member.IsAbstract)
                         {
                             if (member is IPropertySymbol property)
-                                members.Add(new PropertyToGenerate(property, discriminator?.name == property.Name ? discriminator?.value : null));
+                            {
+                                var defaultValue = GetAttribute<DefaultValueAttribute>(property)?.ConstructorArguments[0].Value;
+                                members.Add(new PropertyToGenerate(property, discriminator?.name == property.Name ? discriminator?.value : defaultValue));
+                            }
                             else if (member is IMethodSymbol method)
                                 members.Add(new MethodToGenerate(method));
                         }

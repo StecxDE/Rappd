@@ -12,7 +12,7 @@ public record PreregiterTestCommand : Command<PreregiterTestCommand>;
 public record UnregiteredPreregiterTestCommandHandler : PreregiterTestCommand.Handler
 {
     public override Task<Result> HandleAsync(CancellationToken cancellationToken)
-        => Task.FromResult<Result>(Results.Error);
+        => Task.FromResult<Result>(Results.Failed);
 }
 
 public record PreregiteredPreregiterTestCommandHandler : PreregiterTestCommand.Handler
