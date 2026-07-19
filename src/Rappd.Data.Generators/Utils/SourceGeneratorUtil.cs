@@ -61,7 +61,7 @@ namespace Rappd.Data.Generators.Utils
                             var hasDefaultValue = propertyToGenerate.Value is not null;
                             var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
                             var producesInit = !producesSetter && !hasDefaultValue;
-                            var isRequiered = (producesSetter || producesInit) && !hasDefaultValue;
+                            var isRequiered = (producesSetter || producesInit) && !hasDefaultValue && property.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
                             sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")}{(isRequiered ? " required" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(producesSetter ? "set;" : (producesInit ? "init;" : ""))} }}{(hasDefaultValue ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
                             break;
 
