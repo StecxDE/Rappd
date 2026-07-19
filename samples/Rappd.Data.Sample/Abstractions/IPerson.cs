@@ -7,7 +7,6 @@ namespace Rappd.Data.Sample.Abstractions;
 
 public interface IPerson
 {
-    [DefaultValue("")]
-    string GivenName { get; set; }
+    int? GivenName { get; }
     string LastName { get; }
 }
