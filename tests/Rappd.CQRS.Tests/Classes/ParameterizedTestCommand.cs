@@ -3,7 +3,7 @@
 public record ParameterizedTestCommand : Command<ParameterizedTestCommand, int>;
 public record ParameterizedTestCommandHandler : ParameterizedTestCommand.Handler
 {
-    public static Func<int, Result> Result { get; set; } = (_) => Results.Error;
+    public static Func<int, Result> Result { get; set; } = (_) => Results.Failed;
     public override Task<Result> HandleAsync(CancellationToken cancellationToken)
         => Task.FromResult(Result(Arguments));
 }

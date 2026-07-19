@@ -21,7 +21,7 @@ public class ParameterizedQueryTest
     {
         // Arrange
         int parameter = 0;
-        ParameterizedTestQueryHandler.Result = i => i == 0 ? CommonResults.Results.Error : i;
+        ParameterizedTestQueryHandler.Result = i => i == 0 ? CommonResults.Results.Failed : i;
 
         // Act
         var response = await ParameterizedTestQuery.SendAsync(parameter, TestContext.Current.CancellationToken);

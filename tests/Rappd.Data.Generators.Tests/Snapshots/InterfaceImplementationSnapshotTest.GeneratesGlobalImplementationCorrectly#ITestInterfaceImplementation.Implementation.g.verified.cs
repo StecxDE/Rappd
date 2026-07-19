@@ -1,12 +1,13 @@
 ﻿//HintName: ITestInterfaceImplementation.Implementation.g.cs
+#nullable enable
 namespace Rappd.Data.InterfaceImplementations
 {
     public partial record ITestInterfaceImplementation : ITestInterface
     {
-        public System.String Name { get; init; }
+        public string Name { get; init; }
         public void TestMethod()
             => throw new NotImplementedException();
-        public void TestMethod2<TTy>(System.Object name)
+        public void TestMethod2<TTy>(object)
             => throw new NotImplementedException();
     }
 }

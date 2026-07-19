@@ -34,6 +34,7 @@ namespace Rappd.Data.Generators.Utils
 
             var sb = new StringBuilder();
 
+            sb.AppendLine("#nullable enable");
             sb.AppendLine($"namespace {type.ContainingNamespace}");
             sb.AppendLine("{");
 
@@ -57,7 +58,11 @@ namespace Rappd.Data.Generators.Utils
                     {
                         case PropertyToGenerate propertyToGenerate:
                             var property = propertyToGenerate.Property;
-                            sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(property.SetMethod is null || property.SetMethod.IsInitOnly ? "init" : "set")}; }}{(propertyToGenerate.Value is not null ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
+                            var hasDefaultValue = propertyToGenerate.Value is not null;
+                            var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                            var producesInit = !producesSetter && !hasDefaultValue;
+                            var isRequiered = (producesSetter || producesInit) && !hasDefaultValue;
+                            sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")}{(isRequiered ? " required" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(producesSetter ? "set;" : (producesInit ? "init;" : ""))} }}{(hasDefaultValue ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
                             break;
 
                         case MethodToGenerate methodToGenerate:
@@ -87,6 +92,7 @@ namespace Rappd.Data.Generators.Utils
 
             var sb = new StringBuilder();
 
+            sb.AppendLine("#nullable enable");
             sb.AppendLine($"namespace Rappd.Data");
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class KnownTypesRegistrator");
@@ -109,6 +115,7 @@ namespace Rappd.Data.Generators.Utils
 
             var sb = new StringBuilder();
 
+            sb.AppendLine("#nullable enable");
             sb.AppendLine($"namespace Rappd.Data");
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class KnownTypesRegistrator");
@@ -131,6 +138,7 @@ namespace Rappd.Data.Generators.Utils
 
             var sb = new StringBuilder();
 
+            sb.AppendLine("#nullable enable");
             sb.AppendLine($"namespace Rappd.Data");
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class KnownTypesRegistrator");
@@ -152,6 +160,7 @@ namespace Rappd.Data.Generators.Utils
 
             var sb = new StringBuilder();
 
+            sb.AppendLine("#nullable enable");
             sb.AppendLine($"namespace Rappd.Data");
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class Implementations");

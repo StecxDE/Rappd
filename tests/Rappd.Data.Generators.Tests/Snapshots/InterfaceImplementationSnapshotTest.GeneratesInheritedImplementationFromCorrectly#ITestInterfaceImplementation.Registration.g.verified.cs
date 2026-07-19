@@ -1,4 +1,5 @@
 ﻿//HintName: ITestInterfaceImplementation.Registration.g.cs
+#nullable enable
 namespace Rappd.Data
 {
     internal static partial class KnownTypesRegistrator
@@ -6,7 +7,7 @@ namespace Rappd.Data
         [System.Runtime.CompilerServices.ModuleInitializer]
         public static void RegisterITestInterfaceImplementation()
         {
-            Rappd.Data.KnownTypesRegistry.Instance.Register(typeof(Rappd.Data.Tests.ITestInterface),typeof(Rappd.Data.InterfaceImplementations.ITestInterfaceImplementation));
+            Rappd.Data.KnownTypesRegistry.Instance.RegisterImplementation(typeof(Rappd.Data.Tests.ITestInterface),typeof(Rappd.Data.InterfaceImplementations.ITestInterfaceImplementation));
         }
     }
 }

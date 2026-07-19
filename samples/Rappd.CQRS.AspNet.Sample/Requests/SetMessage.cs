@@ -13,6 +13,6 @@ public record SetMessageHandler(IHttpContextAccessor ContextAccessor) : SetMessa
             return Results.Ok;
         }
         else
-            return Results.Error;
+            return Results.Failed;
     }
 }

@@ -1,4 +1,5 @@
 ﻿//HintName: ITestInterfaceImplementation.Generator.g.cs
+#nullable enable
 namespace Rappd.Data
 {
     internal static partial class Implementations
