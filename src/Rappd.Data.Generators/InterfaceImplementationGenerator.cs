@@ -20,14 +20,14 @@ public class InterfaceImplementationGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(typesToGenerateProvider,
             static (spc, source) => { foreach (var typeToGenerate in source) Execute(typeToGenerate, spc); });
 
-        IncrementalValuesProvider<TypeToGenerate?> typeToGenerateProvider = context.SyntaxProvider
+        IncrementalValuesProvider<TypeToGenerate[]> typeToGenerateProvider2 = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 typeof(ImplementsAttribute<>).FullName,
                 predicate: static (s, _) => true,
-                transform: static (ctx, _) => SyntaxTransformUtil.GetTypeToGenerate(ctx.SemanticModel, ctx.Attributes, ctx.TargetNode))
-            .Where(static m => m is not null);
-        context.RegisterSourceOutput(typeToGenerateProvider,
-            static (spc, source) => Execute(source, spc));
+                transform: static (ctx, _) => SyntaxTransformUtil.GetTypesToGenerate(ctx.SemanticModel, ctx.Attributes, ctx.TargetNode))
+            .Where(static m => m.Length > 0);
+        context.RegisterSourceOutput(typeToGenerateProvider2,
+            static (spc, source) => { foreach (var typeToGenerate in source) Execute(typeToGenerate, spc); });
 
         IncrementalValuesProvider<BaseInterfaceToRegister?> baseInterfaceToRegisterProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(

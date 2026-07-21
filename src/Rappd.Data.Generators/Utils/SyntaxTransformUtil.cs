@@ -100,39 +100,55 @@ namespace Rappd.Data.Generators.Utils
             return [.. typesToGenerate];
         }
 
-        public static TypeToGenerate? GetTypeToGenerate(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode implementationType)
+        public static TypeToGenerate[] GetTypesToGenerate(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode targetNode)
         {
-            // Get the semantic representation of the enum syntax
-            if (semanticModel.GetDeclaredSymbol(implementationType) is not INamedTypeSymbol typeSymbol)
+            switch (semanticModel.GetDeclaredSymbol(targetNode))
             {
-                // something went wrong
-                return null;
-            }
+                case INamedTypeSymbol typeSymbol:
+                    List<ITypeSymbol> interfaces = [];
+                    List<MemberToGenerate> members = [];
 
-            List<ITypeSymbol> interfaces = [];
-            List<MemberToGenerate> members = [];
-
-            foreach (var attribute in attributes)
-            {
-                if (attribute.AttributeClass is INamedTypeSymbol attributeClass)
-                {
-                    var interfaceType = attributeClass.TypeArguments.First();
-
-                    var membersToGenerate = GetMembersToGenerate(interfaceType, typeSymbol);
-                    if (membersToGenerate != null)
+                    foreach (var attribute in attributes)
                     {
-                        interfaces.Add(interfaceType);
-                        members.AddRange(membersToGenerate);
-                    }
-                }
-            }
+                        if (attribute.AttributeClass is INamedTypeSymbol attributeClass)
+                        {
+                            var interfaceType = attributeClass.TypeArguments.First();
 
-            return new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members]);
+                            var membersToGenerate = GetMembersToGenerate(interfaceType, typeSymbol);
+                            if (membersToGenerate != null)
+                            {
+                                interfaces.Add(interfaceType);
+                                members.AddRange(membersToGenerate);
+                            }
+                        }
+                    }
+
+                    return [new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members])];
+
+                default:
+                    List<TypeToGenerate> typesToGenerate = [];
+
+                    foreach (var attribute in attributes)
+                    {
+                        if (attribute.AttributeClass is INamedTypeSymbol attributeClass)
+                        {
+                            var interfaceType = attributeClass.TypeArguments.First();
+
+                            var membersToGenerate = GetMembersToGenerate(interfaceType, null);
+                            if (membersToGenerate != null)
+                                typesToGenerate.Add(new TypeToGenerate(
+                                    ("Rappd.Data.InterfaceImplementations", $"{interfaceType.Name}Implementation", interfaceType.DeclaredAccessibility, TypeKind.Class, true),
+                                    [interfaceType], [.. membersToGenerate]
+                                ));
+                        }
+                    }
+
+                    return [.. typesToGenerate];
+            }
         }
 
         public static BaseInterfaceToRegister? GetBaseInterfaceToRegister(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode interfaceType)
         {
-            // Get the semantic representation of the enum syntax
             if (semanticModel.GetDeclaredSymbol(interfaceType) is not INamedTypeSymbol interfaceTypeSymbol || attributes.FirstOrDefault() is not AttributeData attribute)
             {
                 // something went wrong
@@ -149,7 +165,6 @@ namespace Rappd.Data.Generators.Utils
         }
         public static SubInterfaceToRegister? GetSubInterfaceToRegister(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode subInterfaceType)
         {
-            // Get the semantic representation of the enum syntax
             if (semanticModel.GetDeclaredSymbol(subInterfaceType) is not INamedTypeSymbol subInterfaceTypeSymbol || attributes.FirstOrDefault() is not AttributeData attribute)
             {
                 // something went wrong

@@ -25,7 +25,7 @@ public static class CqrsProvider
     /// <returns>The response of the request.</returns>
     internal static Task<TResponse> SendAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken)
         where TRequest : IRequest<TResponse>
-        where TResponse : Response
+        where TResponse : ResponseBase
         => _registry.GetHandler<TRequest, TResponse>().Handle(request, cancellationToken);
 
     /// <summary>
@@ -159,7 +159,7 @@ public static class CqrsProvider
         /// <exception cref="NoHandlerFoundException">Thrown if no handler was found.</exception>
         public IHandler<TRequest, TResponse> GetHandler<TRequest, TResponse>()
             where TRequest : IRequest<TResponse>
-            where TResponse : Response
+            where TResponse : ResponseBase
         {
             // Get the request type
             var requestType = typeof(TRequest);

@@ -1,9 +1,13 @@
 ﻿using Rappd.Data;
 using Rappd.Data.Sample.Abstractions;
 using Rappd.Data.Sample.Models;
+using System.Reflection;
 using System.Text.Json;
 
-[assembly: ImplementsFrom<Program>]
+//[assembly: ImplementsFrom<Program>]
+
+[assembly: Implements<IPerson>]
+[assembly: Implements<ISub>]
 
 var factory = new InterfaceConverterFactory();
 var options = new JsonSerializerOptions(JsonSerializerOptions.Web);

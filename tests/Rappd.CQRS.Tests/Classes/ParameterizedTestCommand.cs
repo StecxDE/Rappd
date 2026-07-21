@@ -1,6 +1,6 @@
 ﻿namespace Rappd.CQRS.Tests;
 
-public record ParameterizedTestCommand : Command<ParameterizedTestCommand, int>;
+public record ParameterizedTestCommand : ParameterizedCommand<ParameterizedTestCommand, int>;
 public record ParameterizedTestCommandHandler : ParameterizedTestCommand.Handler
 {
     public static Func<int, Result> Result { get; set; } = (_) => Results.Failed;
