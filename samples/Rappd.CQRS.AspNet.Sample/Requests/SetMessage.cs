@@ -1,6 +1,6 @@
 ﻿namespace Rappd.CQRS.AspNet.Sample.Requests;
 
-public record SetMessage : Command<SetMessage, string>;
+public record SetMessage : ParameterizedCommand<SetMessage, string>;
 public record SetMessageHandler(IHttpContextAccessor ContextAccessor) : SetMessage.Handler
 {
     public override async Task<Result> HandleAsync(CancellationToken cancellationToken)

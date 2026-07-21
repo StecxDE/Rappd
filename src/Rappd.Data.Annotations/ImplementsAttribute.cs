@@ -23,7 +23,7 @@ namespace Rappd.Data
     /// Indicates that a class implements a interface.
     /// </summary>
     /// <typeparam name="TInterface">The type of the interface which is implemented by the class.</typeparam>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly, Inherited = false, AllowMultiple = true)]
     public sealed class ImplementsAttribute<TInterface> : ImplementsAttribute
     {
         /// <summary>

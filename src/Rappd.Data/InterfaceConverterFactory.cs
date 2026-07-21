@@ -146,6 +146,9 @@ namespace Rappd.Data
 
                         foreach (var property in properties)
                         {
+                            if (!property.CanWrite)
+                                continue;
+
                             JsonElement jsonProperty;
                             if (options.PropertyNameCaseInsensitive)
                             {

@@ -12,6 +12,30 @@ namespace Rappd.Data.Generators.Tests
     public class InterfaceImplementationSnapshotTest
     {
         [Fact]
+        public Task GeneratesImplementationsCorrectly()
+        {
+            // The source code to test
+            var source = @"
+                using Rappd.Data;
+
+                [assembly: Implements<Rappd.Data.Tests.ITestInterface>]
+
+                namespace Rappd.Data.Tests
+                {
+                    public interface ITestInterface
+                    {
+                        string Name { get; }
+                        void TestMethod();
+                        void TestMethod2<TTy>(object name);
+                    }
+                }
+            ";
+
+            // Pass the source code to our helper and snapshot test the output
+            return TestHelpers.Verify(source);
+        }
+
+        [Fact]
         public Task GeneratesImplementationCorrectly()
         {
             // The source code to test

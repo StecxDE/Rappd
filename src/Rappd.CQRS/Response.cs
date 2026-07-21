@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the response of a request.
 /// </summary>
-public abstract class Response
+public abstract class ResponseBase
 {
     /// <summary>
     /// Indicates if the request was successful.
@@ -15,9 +15,9 @@ public abstract class Response
     public abstract ErrorResult? Error { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Response"/> class.
+    /// Initializes a new instance of the <see cref="ResponseBase"/> class.
     /// </summary>
-    private protected Response() { }
+    private protected ResponseBase() { }
 
     /// <summary>
     /// Throws an exception if the request was not successful.
@@ -27,62 +27,62 @@ public abstract class Response
 }
 
 /// <summary>
-/// The response of a command.
+/// The response of a request.
 /// </summary>
-public sealed class CommandResponse : Response
+public sealed class Response : ResponseBase
 {
     /// <summary>
-    /// Indicates if the command was successful.
+    /// Indicates if the request was successful.
     /// </summary>
     public override bool IsSuccess { get; }
     /// <summary>
-    /// The occurred error if the command was not successful.
+    /// The occurred error if the request was not successful.
     /// </summary>
     public override ErrorResult? Error { get; }
     /// <summary>
-    /// The returned result if the command was successful.
+    /// The returned result if the request was successful.
     /// </summary>
     public Result? Result { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref=CommandResponse"/> class with a result.
+    /// Initializes a new instance of the <see cref=Response"/> class with a result.
     /// </summary>
-    /// <param name="result">The result of the command.</param>
-    internal CommandResponse(Result result)
+    /// <param name="result">The result of the request.</param>
+    internal Response(Result result)
         => (IsSuccess, Error, Result) = result is ErrorResult error ? (false, error, (Result?)null) : (true, null, result);
 }
 
 /// <summary>
-/// The response of a query.
+/// The response of a request containing data.
 /// </summary>
-/// <typeparam name="TData">The type of the data returned by the query.</typeparam>
-public sealed class QueryResponse<TData> : Response
+/// <typeparam name="TData">The type of the data returned by the request.</typeparam>
+public sealed class Response<TData> : ResponseBase
 {
     /// <summary>
-    /// Indicates if the query was successful.
+    /// Indicates if the request was successful.
     /// </summary>
     public override bool IsSuccess { get; }
     /// <summary>
-    /// The occurred error if the query was not successful.
+    /// The occurred error if the request was not successful.
     /// </summary>
     public override ErrorResult? Error { get; }
     /// <summary>
-    /// The returned data if the query was successful.
+    /// The returned data if the request was successful.
     /// </summary>
     public TData Result { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref=QueryResponse{TData}"/> class with a result.
+    /// Initializes a new instance of the <see cref=Response{TData}"/> class with a result.
     /// </summary>
-    /// <param name="result">The result of the query.</param>
-    internal QueryResponse(Result<TData> result)
+    /// <param name="result">The result of the request.</param>
+    internal Response(Result<TData> result)
         => (IsSuccess, Error, Result) = result is ErrorProxy<TData> proxy ? (false, proxy.Error, result.Data) : (true, null, result.Data);
 
     /// <summary>
-    /// Implicitly converts the given query response to the returned data.
+    /// Implicitly converts the given response to the returned data.
     /// </summary>
-    /// <param name="response">The query response to convert.</param>
+    /// <param name="response">The response to convert.</param>
     /// <exception cref="Exception">Thrown if the request was not successful.</exception>
-    public static implicit operator TData(QueryResponse<TData> response)
+    public static implicit operator TData(Response<TData> response)
         => response.IsSuccess ? response.Result : throw response.Error!.ToException();
 }
