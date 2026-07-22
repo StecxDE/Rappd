@@ -26,12 +26,8 @@ namespace Rappd.Api
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         public static IEndpointRouteBuilder Map(this IEndpointRouteBuilder builder, string? path, params IEndpointMap[] endpoints)
         {
-            if (path is not null)
-                CreateMap(path, endpoints)
-                    .AddTo(builder, path);
-            else
-                foreach (var endpoint in endpoints)
-                    endpoint.AddTo(builder, path);
+            foreach (var endpoint in endpoints)
+                endpoint.AddTo(builder, path);
             return builder;
         }
 
