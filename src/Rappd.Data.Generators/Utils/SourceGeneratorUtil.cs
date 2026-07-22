@@ -218,7 +218,7 @@ namespace Rappd.Data.Generators.Utils
                         var hasDefaultValue = propertyToGenerate.Value is not null;
                         var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
                         var producesInit = !producesSetter && !hasDefaultValue;
-                        if (producesSetter || producesInit)
+                        if (producesInit)
                             properties.Add(propertyToGenerate.Property);
                     }
                 }
@@ -235,17 +235,9 @@ namespace Rappd.Data.Generators.Utils
                 sb.AppendLine($"        => new {typeToGenerate.ImplementationType.ContainingNamespace}.{typeToGenerate.ImplementationType.Name}");
                 sb.AppendLine("        {");
 
-                foreach (var member in typeToGenerate.MembersToGenerate)
+                foreach (var property in properties)
                 {
-                    if (member is PropertyToGenerate propertyToGenerate)
-                    {
-                        var property = propertyToGenerate.Property;
-                        var hasDefaultValue = propertyToGenerate.Value is not null;
-                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
-                        var producesInit = !producesSetter && !hasDefaultValue;
-                        if (producesSetter || producesInit)
-                            sb.AppendLine($"            {property.Name} = p{property.Name},");
-                    }
+                    sb.AppendLine($"            {property.Name} = p{property.Name},");
                 }
 
                 sb.AppendLine("        };");
