@@ -102,6 +102,26 @@ namespace Rappd.Data.Generators.Utils
             sb.AppendLine("        {");
             foreach (var @interface in typeToGenerate.InterfacesToImplement)
                 sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterImplementation)}(typeof({@interface.ToDisplayString()}),typeof({implementation.ContainingNamespace}.{implementation.Name}));");
+            if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
+            {
+                sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterConverter)}<{interfaceType.ToDisplayString()}>((implementation)");
+                sb.AppendLine($"                => new {implementation.ContainingNamespace}.{implementation.Name}");
+                sb.AppendLine("                {");
+                foreach (var member in typeToGenerate.MembersToGenerate)
+                {
+                    if (member is PropertyToGenerate propertyToGenerate)
+                    {
+                        var property = propertyToGenerate.Property;
+                        var hasDefaultValue = propertyToGenerate.Value is not null;
+                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                        var producesInit = !producesSetter && !hasDefaultValue;
+                        if (producesSetter || producesInit)
+                            sb.AppendLine($"                    {property.Name} = implementation.{property.Name},");
+                    }
+                }
+                sb.AppendLine("                }");
+                sb.AppendLine("            );");
+            }
             sb.AppendLine("        }");
             sb.AppendLine("    }");
             sb.AppendLine("}");
@@ -176,6 +196,63 @@ namespace Rappd.Data.Generators.Utils
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
+            return sb.ToString();
+        }
+        public static string GenerateImplementationGenerator2(TypeToGenerate typeToGenerate)
+        {
+            var sb = new StringBuilder();
+
+            if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
+            {
+                sb.AppendLine("#nullable enable");
+                sb.AppendLine($"namespace Rappd.Data");
+                sb.AppendLine("{");
+                sb.AppendLine("    internal static partial class Implementations");
+                sb.AppendLine("    {");
+                var properties = new List<IPropertySymbol>();
+                foreach (var member in typeToGenerate.MembersToGenerate)
+                {
+                    if (member is PropertyToGenerate propertyToGenerate)
+                    {
+                        var property = propertyToGenerate.Property;
+                        var hasDefaultValue = propertyToGenerate.Value is not null;
+                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                        var producesInit = !producesSetter && !hasDefaultValue;
+                        if (producesSetter || producesInit)
+                            properties.Add(propertyToGenerate.Property);
+                    }
+                }
+
+                sb.Append($"        public static {interfaceType.ToDisplayString()} Create{interfaceType.Name}(");
+                for (int i = 0; i < properties.Count; i++)
+                {
+                    var property = properties[i];
+                    sb.Append($"{property.Type.ToDisplayString()} p{property.Name}");
+                    if (i < properties.Count - 1)
+                        sb.Append(",");
+                }
+                sb.AppendLine(")");
+                sb.AppendLine($"        => new {typeToGenerate.ImplementationType.ContainingNamespace}.{typeToGenerate.ImplementationType.Name}");
+                sb.AppendLine("        {");
+
+                foreach (var member in typeToGenerate.MembersToGenerate)
+                {
+                    if (member is PropertyToGenerate propertyToGenerate)
+                    {
+                        var property = propertyToGenerate.Property;
+                        var hasDefaultValue = propertyToGenerate.Value is not null;
+                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                        var producesInit = !producesSetter && !hasDefaultValue;
+                        if (producesSetter || producesInit)
+                            sb.AppendLine($"            {property.Name} = p{property.Name},");
+                    }
+                }
+
+                sb.AppendLine("        };");
+                sb.AppendLine("    }");
+                sb.AppendLine("}");
+
+            }
             return sb.ToString();
         }
     }

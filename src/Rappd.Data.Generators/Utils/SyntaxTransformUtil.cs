@@ -92,7 +92,7 @@ namespace Rappd.Data.Generators.Utils
                         if (members != null)
                             typesToGenerate.Add(new TypeToGenerate(
                                 ("Rappd.Data.InterfaceImplementations", $"{symbol.Name}Implementation", symbol.DeclaredAccessibility, TypeKind.Class, true),
-                                [symbol], [.. members]
+                                [symbol], [.. members], true
                             ));
                     }
                 }
@@ -102,6 +102,7 @@ namespace Rappd.Data.Generators.Utils
 
         public static TypeToGenerate[] GetTypesToGenerate(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode targetNode)
         {
+            List<TypeToGenerate> typesToGenerate = [];
             switch (semanticModel.GetDeclaredSymbol(targetNode))
             {
                 case INamedTypeSymbol typeSymbol:
@@ -120,14 +121,20 @@ namespace Rappd.Data.Generators.Utils
                                 interfaces.Add(interfaceType);
                                 members.AddRange(membersToGenerate);
                             }
+
+                            var closedMembersToGenerate = GetMembersToGenerate(interfaceType, null);
+                            if (closedMembersToGenerate != null)
+                                typesToGenerate.Add(new TypeToGenerate(
+                                    ("Rappd.Data.InterfaceImplementations", $"{typeSymbol.Name}Closed{interfaceType.Name}Implementation", interfaceType.DeclaredAccessibility, TypeKind.Class, true),
+                                    [interfaceType], [.. closedMembersToGenerate], true
+                                ));
                         }
                     }
 
-                    return [new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members])];
+                    typesToGenerate.Add(new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members], false));
+                    break;
 
                 default:
-                    List<TypeToGenerate> typesToGenerate = [];
-
                     foreach (var attribute in attributes)
                     {
                         if (attribute.AttributeClass is INamedTypeSymbol attributeClass)
@@ -138,13 +145,14 @@ namespace Rappd.Data.Generators.Utils
                             if (membersToGenerate != null)
                                 typesToGenerate.Add(new TypeToGenerate(
                                     ("Rappd.Data.InterfaceImplementations", $"{interfaceType.Name}Implementation", interfaceType.DeclaredAccessibility, TypeKind.Class, true),
-                                    [interfaceType], [.. membersToGenerate]
+                                    [interfaceType], [.. membersToGenerate], true
                                 ));
                         }
                     }
-
-                    return [.. typesToGenerate];
+                    break;
             }
+
+            return [.. typesToGenerate];
         }
 
         public static BaseInterfaceToRegister? GetBaseInterfaceToRegister(SemanticModel semanticModel, ImmutableArray<AttributeData> attributes, SyntaxNode interfaceType)

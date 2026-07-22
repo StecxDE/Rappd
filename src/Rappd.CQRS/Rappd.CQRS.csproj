@@ -34,4 +34,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj" />
+	</ItemGroup>
+
 </Project>

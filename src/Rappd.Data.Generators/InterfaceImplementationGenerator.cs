@@ -56,8 +56,9 @@ public class InterfaceImplementationGenerator : IIncrementalGenerator
             context.AddSource($"{typeToGenerate.ImplementationType.Name}.Implementation.g.cs", SourceText.From(implementation, Encoding.UTF8));
             string registration = SourceGeneratorUtil.GenerateRegistration(typeToGenerate);
             context.AddSource($"{typeToGenerate.ImplementationType.Name}.Registration.g.cs", SourceText.From(registration, Encoding.UTF8));
-            string generator = SourceGeneratorUtil.GenerateImplementationGenerator(typeToGenerate);
-            context.AddSource($"{typeToGenerate.ImplementationType.Name}.Generator.g.cs", SourceText.From(generator, Encoding.UTF8));
+            string generator = SourceGeneratorUtil.GenerateImplementationGenerator2(typeToGenerate);
+            if (!string.IsNullOrWhiteSpace(generator))
+                context.AddSource($"{typeToGenerate.ImplementationType.Name}.Generator.g.cs", SourceText.From(generator, Encoding.UTF8));
         }
     }
     private static void Execute(BaseInterfaceToRegister? baseInterfaceToGenerate, SourceProductionContext context)
@@ -90,11 +91,12 @@ public class InterfaceImplementationGenerator : IIncrementalGenerator
     {
         public IMethodSymbol Method { get; } = method;
     }
-    internal class TypeToGenerate((string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) implementationType, ITypeSymbol[] interfacesToImplement, MemberToGenerate[] membersToGenerate)
+    internal class TypeToGenerate((string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) implementationType, ITypeSymbol[] interfacesToImplement, MemberToGenerate[] membersToGenerate, bool isClosedImplementation)
     {
         public (string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) ImplementationType { get; } = implementationType;
         public ITypeSymbol[] InterfacesToImplement { get; } = interfacesToImplement;
         public MemberToGenerate[] MembersToGenerate { get; } = membersToGenerate;
+        public bool IsClosedImplementation { get; } = isClosedImplementation;
     }
 
     internal class BaseInterfaceToRegister(ITypeSymbol interfaceType, IPropertySymbol discriminatorProperty)
