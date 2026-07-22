@@ -35,7 +35,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj" />
+		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
+			<Pack>True</Pack>
+			<PackagePath>lib/$(TargetFramework)</PackagePath>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>
