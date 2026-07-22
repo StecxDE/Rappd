@@ -8,10 +8,9 @@ public record GetWeatherQuery : Query<GetWeatherQuery, IWeatherData>;
 public record GetWeatherQueryHandler : GetWeatherQuery.Handler
 {
     public override Task<Result<IWeatherData>> HandleAsync(CancellationToken cancellationToken)
-        => Task.FromResult(Results.Data(Implementations.Create<IWeatherData>(new()
-        {
-            Location = "London",
-            Time = DateTime.Now,
-            Temperature = Random.Shared.Next(10, 20)
-        })));
+        => Task.FromResult(Results.Data(Implementations.CreateIWeatherData(
+            "London",
+            DateTime.Now,
+            Random.Shared.Next(10, 20)
+        )));
 }

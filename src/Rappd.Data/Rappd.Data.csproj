@@ -55,13 +55,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj" />
 	  <ProjectReference Include="..\Rappd.Data.Generators\Rappd.Data.Generators.csproj">
 		  <PrivateAssets>All</PrivateAssets>
 	  </ProjectReference>
 		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
-		<ProjectReference Include="..\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj"/>
 	</ItemGroup>
 	
 </Project>

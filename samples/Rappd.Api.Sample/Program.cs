@@ -27,14 +27,8 @@ await new LightApi(
         "/request/{type}".Get(async (string type) => 
             type switch
             {
-                IHelloRequest.TYPE => Results.Ok(Implementations.Create<IHelloRequest>(new()
-                {
-                    Hello = "World"
-                })),
-                IWorldRequest.TYPE => Results.Ok(Implementations.Create<IWorldRequest>(new()
-                {
-                    World = "Hello"
-                })),
+                IHelloRequest.TYPE => Results.Ok(Implementations.CreateIHelloRequest("World")),
+                IWorldRequest.TYPE => Results.Ok(Implementations.CreateIWorldRequest("Hello")),
                 _ => Results.BadRequest()
             }
         ),
