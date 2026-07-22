@@ -31,6 +31,10 @@ namespace Rappd.Data
         /// The internal store for all currently known interface types and their corresponding implementation type.
         /// </summary>
         private readonly Dictionary<Type, Type> _knownImplementationTypes = [];
+        /// <summary>
+        /// The internal store for all currently knwon type converters
+        /// </summary>
+        private readonly static Dictionary<Type, Converter> _knownConverters = [];
 
         public void RegisterBaseType(Type baseType, (Type type, string name) discriminator)
         {
@@ -41,7 +45,7 @@ namespace Rappd.Data
         }
         public bool IsBaseTypeKnown(Type baseType)
             => _knownBaseTypes.ContainsKey(baseType);
-        public bool TryGetDiscriminator(Type baseType, [NotNullWhen(true)]out (Type type, string name) discriminator)
+        public bool TryGetDiscriminator(Type baseType, [NotNullWhen(true)] out (Type type, string name) discriminator)
             => _knownBaseTypes.TryGetValue(baseType, out discriminator);
         public void RegisterSubType(Type baseType, object discriminator, Type subType)
         {
@@ -76,6 +80,38 @@ namespace Rappd.Data
         }
 
         /// <summary>
+        /// Registers a converter.
+        /// </summary>
+        /// <typeparam name="TInterface">The type of the interface the converter is for.</typeparam>
+        /// <param name="converter">The converter function.</param>
+        public void RegisterConverter<TInterface>(Func<TInterface, TInterface> converter)
+        {
+            var interfaceType = typeof(TInterface);
+            if (!_knownConverters.ContainsKey(interfaceType))
+                _knownConverters.Add(interfaceType, new Converter.Typed<TInterface>(converter));
+        }
+
+        /// <summary>
+        /// Tries to get the converter for the given interface type.
+        /// </summary>
+        /// <param name="interfaceType">The type of the interface the converter is for.</param>
+        /// <param name="converter">The converter function.</param>
+        /// <returns><see cref="true"/> if the converter is found, otherwise <see cref="false"/>.</returns>
+        public bool TryGetConverter<TInterface>([NotNullWhen(true)] out Func<TInterface, TInterface>? converter)
+        {
+            if (_knownConverters.TryGetValue(typeof(TInterface), out var @internal) && @internal is Converter.Typed<TInterface> typed)
+            {
+                converter = typed.F;
+                return true;
+            }
+            else
+            {
+                converter = null;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Checks if the given interface type is known.
         /// </summary>
         /// <param name="interfaceType">The interface type.</param>
@@ -91,5 +127,13 @@ namespace Rappd.Data
         /// <returns><see cref="true"/> if the implementation type is found, otherwise <see cref="false"/>.</returns>
         public bool TryGetImplementation(Type interfaceType, [NotNullWhen(true)] out Type? implementationType)
             => _knownImplementationTypes.TryGetValue(interfaceType, out implementationType);
+
+        private abstract class Converter
+        {
+            internal sealed class Typed<T>(Func<T, T> f) : Converter
+            {
+                public Func<T, T> F { get; } = f;
+            }
+        }
     }
 }

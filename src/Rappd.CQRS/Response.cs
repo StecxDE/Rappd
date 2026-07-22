@@ -1,4 +1,6 @@
-﻿namespace Rappd.CQRS;
+﻿using Rappd.Data;
+
+namespace Rappd.CQRS;
 
 /// <summary>
 /// Represents the response of a request.
@@ -76,7 +78,17 @@ public sealed class Response<TData> : ResponseBase
     /// </summary>
     /// <param name="result">The result of the request.</param>
     internal Response(Result<TData> result)
-        => (IsSuccess, Error, Result) = result is ErrorProxy<TData> proxy ? (false, proxy.Error, result.Data) : (true, null, result.Data);
+    {
+        if (result is ErrorProxy<TData> proxy)
+            (IsSuccess, Error, Result) = (false, proxy.Error, result.Data);
+        else
+        {
+            var data = result.Data;
+            if (TypeToInterfaceConverter.TryConvertTo<TData>(data, out var converted))
+                data = converted;
+            (IsSuccess, Error, Result) = (true, null, data);
+        }
+    }
 
     /// <summary>
     /// Implicitly converts the given response to the returned data.
