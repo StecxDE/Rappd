@@ -91,7 +91,7 @@ namespace Rappd.Data.Generators.Utils
                         var members = GetMembersToGenerate(symbol, null);
                         if (members != null)
                             typesToGenerate.Add(new TypeToGenerate(
-                                ("Rappd.Data.InterfaceImplementations", $"{symbol.Name}Implementation", symbol.DeclaredAccessibility, TypeKind.Class, true),
+                                ("Rappd.Data.InterfaceImplementations", $"{symbol.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
                                 [symbol], [.. members], true
                             ));
                     }
@@ -125,7 +125,7 @@ namespace Rappd.Data.Generators.Utils
                             var closedMembersToGenerate = GetMembersToGenerate(interfaceType, null);
                             if (closedMembersToGenerate != null)
                                 typesToGenerate.Add(new TypeToGenerate(
-                                    ("Rappd.Data.InterfaceImplementations", $"{typeSymbol.Name}Closed{interfaceType.Name}Implementation", interfaceType.DeclaredAccessibility, TypeKind.Class, true),
+                                    ("Rappd.Data.InterfaceImplementations", $"{typeSymbol.Name}Closed{interfaceType.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
                                     [interfaceType], [.. closedMembersToGenerate], true
                                 ));
                         }
@@ -144,7 +144,7 @@ namespace Rappd.Data.Generators.Utils
                             var membersToGenerate = GetMembersToGenerate(interfaceType, null);
                             if (membersToGenerate != null)
                                 typesToGenerate.Add(new TypeToGenerate(
-                                    ("Rappd.Data.InterfaceImplementations", $"{interfaceType.Name}Implementation", interfaceType.DeclaredAccessibility, TypeKind.Class, true),
+                                    ("Rappd.Data.InterfaceImplementations", $"{interfaceType.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
                                     [interfaceType], [.. membersToGenerate], true
                                 ));
                         }

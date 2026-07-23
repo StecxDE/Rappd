@@ -190,6 +190,9 @@ namespace Rappd.Data
                     AddProperties(typeof(TInterface));
                     foreach (var property in properties)
                     {
+                        if (!property.CanWrite)
+                            continue;
+
                         writer.WritePropertyName(options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name);
                         JsonSerializer.Serialize(writer, property.GetValue(value), property.PropertyType, options);
                     }

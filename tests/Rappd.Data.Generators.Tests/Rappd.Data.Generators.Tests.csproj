@@ -32,7 +32,6 @@
 		<ItemGroup>
 	  <ProjectReference Include="..\..\src\Rappd.Data.Generators\Rappd.Data.Generators.csproj" />
 	  <ProjectReference Include="..\..\src\Rappd.Data.Shared\Rappd.Data.Shared.csproj" />
-			<ProjectReference Include="..\..\src\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj" />
 	</ItemGroup>
 
 <ItemGroup>

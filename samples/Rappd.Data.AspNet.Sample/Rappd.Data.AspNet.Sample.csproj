@@ -11,7 +11,6 @@
 		<ProjectReference Include="..\..\src\Rappd.Data.AspNet\Rappd.Data.AspNet.csproj" />
 		<ProjectReference Include="..\..\src\Rappd.Data.Shared\Rappd.Data.Shared.csproj" />
 		<ProjectReference Include="..\..\src\Rappd.Data.Shared\Rappd.Data.Shared.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\..\src\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\src\Rappd.Data.Generators\Rappd.Data.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 	

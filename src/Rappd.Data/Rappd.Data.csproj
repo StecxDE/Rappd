@@ -55,7 +55,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Rappd.Data.Annotations\Rappd.Data.Annotations.csproj" />
 	  <ProjectReference Include="..\Rappd.Data.Generators\Rappd.Data.Generators.csproj">
 		  <PrivateAssets>All</PrivateAssets>
 	  </ProjectReference>

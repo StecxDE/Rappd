@@ -28,99 +28,144 @@ namespace Rappd.Data.Generators.Utils
                 _ => value?.ToString() ?? "null"
             };
 
-        public static string GenerateImplementation(TypeToGenerate typeToGenerate)
+        public static string GenerateImplementations(TypeToGenerate[] typesToGenerate)
         {
-            var type = typeToGenerate.ImplementationType;
-
             var sb = new StringBuilder();
 
             sb.AppendLine("#nullable enable");
-            sb.AppendLine($"namespace {type.ContainingNamespace}");
-            sb.AppendLine("{");
 
-            if (type.TypeKind == TypeKind.Class)
+            foreach (var namespaceGroup in typesToGenerate.GroupBy(type => type.ImplementationType.ContainingNamespace))
             {
-                string keyword;
-                if (type.IsRecord)
+                sb.AppendLine();
+                sb.AppendLine($"namespace {namespaceGroup.Key}");
+                sb.AppendLine("{");
+
+                foreach (var typeToGenerate in namespaceGroup)
                 {
-                    keyword = "record";
-                }
-                else
-                {
-                    keyword = "class";
+                    sb.AppendLine();
+                    var type = typeToGenerate.ImplementationType;
+
+                    if (type.TypeKind == TypeKind.Class)
+                    {
+                        string keyword;
+                        if (type.IsRecord)
+                        {
+                            keyword = "record";
+                        }
+                        else
+                        {
+                            keyword = "class";
+                        }
+
+                        sb.AppendLine($"    {GetAccessibility(type.Accessibility)} partial {keyword} {type.Name} : {string.Join(", ", typeToGenerate.InterfacesToImplement.Select(i => i.ToDisplayString()))}");
+                        sb.AppendLine("    {");
+                        foreach (var member in typeToGenerate.MembersToGenerate)
+                        {
+                            switch (member)
+                            {
+                                case PropertyToGenerate propertyToGenerate:
+                                    var property = propertyToGenerate.Property;
+                                    var hasDefaultValue = propertyToGenerate.Value is not null;
+                                    var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                                    var producesInit = !producesSetter && !hasDefaultValue;
+                                    var isRequiered = (producesSetter || producesInit) && !hasDefaultValue && property.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
+                                    sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")}{(isRequiered ? " required" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(producesSetter ? "set;" : (producesInit ? "init;" : ""))} }}{(hasDefaultValue ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
+                                    break;
+
+                                case MethodToGenerate methodToGenerate:
+                                    var method = methodToGenerate.Method;
+                                    string returnType = method.ReturnsVoid ? "void" : method.ReturnType.ToDisplayString();
+                                    sb.Append($"        {GetAccessibility(method.DeclaredAccessibility)}{(method.IsStatic ? " static" : "")} {returnType} {method.Name}");
+                                    if (method.TypeParameters.Any())
+                                    {
+                                        sb.Append($"<{string.Join(", ", method.TypeParameters.Select(p => $"{p.Name}"))}>");
+                                    }
+                                    sb.AppendLine($"({string.Join(", ", method.Parameters.Select(p => p.Type.ToDisplayString()))})");
+                                    sb.AppendLine("            => throw new NotImplementedException();");
+                                    break;
+                            }
+                        }
+                        sb.AppendLine("    }");
+                        sb.AppendLine();
+                    }
                 }
 
-                sb.AppendLine($"    {GetAccessibility(type.Accessibility)} partial {keyword} {type.Name} : {string.Join(", ", typeToGenerate.InterfacesToImplement.Select(i => i.ToDisplayString()))}");
-                sb.AppendLine("    {");
-                foreach (var member in typeToGenerate.MembersToGenerate)
+                sb.AppendLine("}");
+            }
+
+            return sb.ToString();
+        }
+
+        public static string GenerateRegistrations(TypeToGenerate[] typesToGenerate, string id)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("#nullable enable");
+            sb.AppendLine();
+            sb.AppendLine($"namespace Rappd.Data");
+            sb.AppendLine("{");
+            sb.AppendLine("    internal static partial class KnownTypesRegistrator");
+            sb.AppendLine("    {");
+
+            sb.AppendLine("        [System.Runtime.CompilerServices.ModuleInitializer]");
+            sb.AppendLine($"        public static void RegisterImplementations{id}()");
+            sb.AppendLine("        {");
+            foreach (var typeToGenerate in typesToGenerate)
+            {
+                var implementation = typeToGenerate.ImplementationType;
+
+                foreach (var @interface in typeToGenerate.InterfacesToImplement)
+                    sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterImplementation)}(typeof({@interface.ToDisplayString()}),typeof({implementation.ContainingNamespace}.{implementation.Name}));");
+                if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
                 {
-                    switch (member)
+                    sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterConverter)}<{interfaceType.ToDisplayString()}>((implementation)");
+                    sb.AppendLine($"                => new {implementation.ContainingNamespace}.{implementation.Name}");
+                    sb.AppendLine("                {");
+                    foreach (var member in typeToGenerate.MembersToGenerate)
                     {
-                        case PropertyToGenerate propertyToGenerate:
+                        if (member is PropertyToGenerate propertyToGenerate)
+                        {
                             var property = propertyToGenerate.Property;
                             var hasDefaultValue = propertyToGenerate.Value is not null;
                             var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
                             var producesInit = !producesSetter && !hasDefaultValue;
-                            var isRequiered = (producesSetter || producesInit) && !hasDefaultValue && property.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
-                            sb.AppendLine($"        {GetAccessibility(property.DeclaredAccessibility)}{(property.IsStatic ? " static" : "")}{(isRequiered ? " required" : "")} {property.Type.ToDisplayString()} {property.Name} {{ get; {(producesSetter ? "set;" : (producesInit ? "init;" : ""))} }}{(hasDefaultValue ? $" = {GetValue(propertyToGenerate.Value)};" : "")}");
-                            break;
-
-                        case MethodToGenerate methodToGenerate:
-                            var method = methodToGenerate.Method;
-                            string returnType = method.ReturnsVoid ? "void" : method.ReturnType.ToDisplayString();
-                            sb.Append($"        {GetAccessibility(method.DeclaredAccessibility)}{(method.IsStatic ? " static" : "")} {returnType} {method.Name}");
-                            if (method.TypeParameters.Any())
-                            {
-                                sb.Append($"<{string.Join(", ", method.TypeParameters.Select(p => $"{p.Name}"))}>");
-                            }
-                            sb.AppendLine($"({string.Join(", ", method.Parameters.Select(p => p.Type.ToDisplayString()))})");
-                            sb.AppendLine("            => throw new NotImplementedException();");
-                            break;
+                            if (producesSetter || producesInit)
+                                sb.AppendLine($"                    {property.Name} = implementation.{property.Name},");
+                        }
                     }
+                    sb.AppendLine("                }");
+                    sb.AppendLine("            );");
                 }
-                sb.AppendLine("    }");
             }
-
+            sb.AppendLine("        }");
+            sb.AppendLine("    }");
             sb.AppendLine("}");
 
             return sb.ToString();
         }
-
-        public static string GenerateRegistration(TypeToGenerate typeToGenerate)
+        public static string GenerateRegistrations(BaseInterfaceToRegister?[] baseInterfacesToRegister)
         {
-            var implementation = typeToGenerate.ImplementationType;
-
             var sb = new StringBuilder();
 
             sb.AppendLine("#nullable enable");
+            sb.AppendLine();
             sb.AppendLine($"namespace Rappd.Data");
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class KnownTypesRegistrator");
             sb.AppendLine("    {");
+
             sb.AppendLine("        [System.Runtime.CompilerServices.ModuleInitializer]");
-            sb.AppendLine($"        public static void Register{implementation.Name}()");
+            sb.AppendLine($"        public static void RegisterBaseInterfaces()");
             sb.AppendLine("        {");
-            foreach (var @interface in typeToGenerate.InterfacesToImplement)
-                sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterImplementation)}(typeof({@interface.ToDisplayString()}),typeof({implementation.ContainingNamespace}.{implementation.Name}));");
-            if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
+            foreach (var baseInterfaceToRegister in baseInterfacesToRegister)
             {
-                sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterConverter)}<{interfaceType.ToDisplayString()}>((implementation)");
-                sb.AppendLine($"                => new {implementation.ContainingNamespace}.{implementation.Name}");
-                sb.AppendLine("                {");
-                foreach (var member in typeToGenerate.MembersToGenerate)
+                if (baseInterfaceToRegister is not null)
                 {
-                    if (member is PropertyToGenerate propertyToGenerate)
-                    {
-                        var property = propertyToGenerate.Property;
-                        var hasDefaultValue = propertyToGenerate.Value is not null;
-                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
-                        var producesInit = !producesSetter && !hasDefaultValue;
-                        if (producesSetter || producesInit)
-                            sb.AppendLine($"                    {property.Name} = implementation.{property.Name},");
-                    }
+                    var interfaceType = baseInterfaceToRegister.InterfaceType;
+                    var propertySymbol = baseInterfaceToRegister.DiscriminatorProperty;
+
+                    sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterBaseType)}(typeof({interfaceType.ToDisplayString()}),(typeof({propertySymbol.Type.ContainingNamespace}.{propertySymbol.Type.Name}),nameof({interfaceType.ToDisplayString()}.{propertySymbol.Name})));");
                 }
-                sb.AppendLine("                }");
-                sb.AppendLine("            );");
             }
             sb.AppendLine("        }");
             sb.AppendLine("    }");
@@ -128,11 +173,8 @@ namespace Rappd.Data.Generators.Utils
 
             return sb.ToString();
         }
-        public static string GenerateRegistration(BaseInterfaceToRegister baseInterfaceToRegister)
+        public static string GenerateRegistrations(SubInterfaceToRegister?[] subInterfacesToRegister)
         {
-            var interfaceType = baseInterfaceToRegister.InterfaceType;
-            var propertySymbol = baseInterfaceToRegister.DiscriminatorProperty;
-
             var sb = new StringBuilder();
 
             sb.AppendLine("#nullable enable");
@@ -141,43 +183,28 @@ namespace Rappd.Data.Generators.Utils
             sb.AppendLine("    internal static partial class KnownTypesRegistrator");
             sb.AppendLine("    {");
             sb.AppendLine("        [System.Runtime.CompilerServices.ModuleInitializer]");
-            sb.AppendLine($"        public static void RegisterBase{interfaceType.Name}()");
+            sb.AppendLine($"        public static void RegisterSubInterfaces()");
             sb.AppendLine("        {");
-            sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterBaseType)}(typeof({interfaceType.ToDisplayString()}),(typeof({propertySymbol.Type.ContainingNamespace}.{propertySymbol.Type.Name}),nameof({interfaceType.ToDisplayString()}.{propertySymbol.Name})));");
+
+            foreach (var subInterfaceToRegister in subInterfacesToRegister)
+            {
+                if (subInterfaceToRegister is not null)
+                {
+                    var baseInterfaceType = subInterfaceToRegister.BaseInterfaceType;
+                    var discriminatorValue = subInterfaceToRegister.DiscriminatorValue;
+                    var subInterfaceSymbol = subInterfaceToRegister.SubInterfaceType;
+
+                    sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterSubType)}(typeof({baseInterfaceType.ToDisplayString()}), {GetValue(discriminatorValue)}, typeof({subInterfaceSymbol.ToDisplayString()}));");
+                }
+            }
             sb.AppendLine("        }");
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
             return sb.ToString();
         }
-        public static string GenerateRegistration(SubInterfaceToRegister subInterfaceToRegister)
+        public static string GenerateImplementationGenerators(TypeToGenerate[] typesToGenerate)
         {
-            var baseInterfaceType = subInterfaceToRegister.BaseInterfaceType;
-            var discriminatorValue = subInterfaceToRegister.DiscriminatorValue;
-            var subInterfaceSymbol = subInterfaceToRegister.SubInterfaceType;
-
-            var sb = new StringBuilder();
-
-            sb.AppendLine("#nullable enable");
-            sb.AppendLine($"namespace Rappd.Data");
-            sb.AppendLine("{");
-            sb.AppendLine("    internal static partial class KnownTypesRegistrator");
-            sb.AppendLine("    {");
-            sb.AppendLine("        [System.Runtime.CompilerServices.ModuleInitializer]");
-            sb.AppendLine($"        public static void RegisterSub{subInterfaceSymbol.Name}()");
-            sb.AppendLine("        {");
-            sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterSubType)}(typeof({baseInterfaceType.ToDisplayString()}), {GetValue(discriminatorValue)}, typeof({subInterfaceSymbol.ToDisplayString()}));");
-            sb.AppendLine("        }");
-            sb.AppendLine("    }");
-            sb.AppendLine("}");
-
-            return sb.ToString();
-        }
-
-        public static string GenerateImplementationGenerator(TypeToGenerate typeToGenerate)
-        {
-            var implementation = typeToGenerate.ImplementationType;
-
             var sb = new StringBuilder();
 
             sb.AppendLine("#nullable enable");
@@ -185,66 +212,47 @@ namespace Rappd.Data.Generators.Utils
             sb.AppendLine("{");
             sb.AppendLine("    internal static partial class Implementations");
             sb.AppendLine("    {");
-            foreach (var @interface in typeToGenerate.InterfacesToImplement)
+            foreach (var typeToGenerate in typesToGenerate)
             {
-                sb.AppendLine($"        public static {@interface.ToDisplayString()} Create<TInterface>({implementation.ContainingNamespace}.{implementation.Name} implementation)");
-                sb.AppendLine($"            where TInterface : {@interface.ToDisplayString()}");
-                sb.AppendLine("        {");
-                sb.AppendLine($"            return implementation;");
-                sb.AppendLine("        }");
+                if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
+                {
+                    var properties = new List<IPropertySymbol>();
+                    foreach (var member in typeToGenerate.MembersToGenerate)
+                    {
+                        if (member is PropertyToGenerate propertyToGenerate)
+                        {
+                            var property = propertyToGenerate.Property;
+                            var hasDefaultValue = propertyToGenerate.Value is not null;
+                            var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
+                            var producesInit = !producesSetter && !hasDefaultValue;
+                            if (producesInit)
+                                properties.Add(propertyToGenerate.Property);
+                        }
+                    }
+
+                    sb.Append($"        public static {interfaceType.ToDisplayString()} Create{interfaceType.Name}(");
+                    for (int i = 0; i < properties.Count; i++)
+                    {
+                        var property = properties[i];
+                        sb.Append($"{property.Type.ToDisplayString()} p{property.Name}");
+                        if (i < properties.Count - 1)
+                            sb.Append(",");
+                    }
+                    sb.AppendLine(")");
+                    sb.AppendLine($"        => new {typeToGenerate.ImplementationType.ContainingNamespace}.{typeToGenerate.ImplementationType.Name}");
+                    sb.AppendLine("        {");
+
+                    foreach (var property in properties)
+                    {
+                        sb.AppendLine($"            {property.Name} = p{property.Name},");
+                    }
+
+                    sb.AppendLine("        };");
+                }
             }
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            return sb.ToString();
-        }
-        public static string GenerateImplementationGenerator2(TypeToGenerate typeToGenerate)
-        {
-            var sb = new StringBuilder();
-
-            if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
-            {
-                sb.AppendLine("#nullable enable");
-                sb.AppendLine($"namespace Rappd.Data");
-                sb.AppendLine("{");
-                sb.AppendLine("    internal static partial class Implementations");
-                sb.AppendLine("    {");
-                var properties = new List<IPropertySymbol>();
-                foreach (var member in typeToGenerate.MembersToGenerate)
-                {
-                    if (member is PropertyToGenerate propertyToGenerate)
-                    {
-                        var property = propertyToGenerate.Property;
-                        var hasDefaultValue = propertyToGenerate.Value is not null;
-                        var producesSetter = property.SetMethod is not null && !property.SetMethod.IsInitOnly;
-                        var producesInit = !producesSetter && !hasDefaultValue;
-                        if (producesInit)
-                            properties.Add(propertyToGenerate.Property);
-                    }
-                }
-
-                sb.Append($"        public static {interfaceType.ToDisplayString()} Create{interfaceType.Name}(");
-                for (int i = 0; i < properties.Count; i++)
-                {
-                    var property = properties[i];
-                    sb.Append($"{property.Type.ToDisplayString()} p{property.Name}");
-                    if (i < properties.Count - 1)
-                        sb.Append(",");
-                }
-                sb.AppendLine(")");
-                sb.AppendLine($"        => new {typeToGenerate.ImplementationType.ContainingNamespace}.{typeToGenerate.ImplementationType.Name}");
-                sb.AppendLine("        {");
-
-                foreach (var property in properties)
-                {
-                    sb.AppendLine($"            {property.Name} = p{property.Name},");
-                }
-
-                sb.AppendLine("        };");
-                sb.AppendLine("    }");
-                sb.AppendLine("}");
-
-            }
             return sb.ToString();
         }
     }

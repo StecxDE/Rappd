@@ -8,6 +8,12 @@ namespace Rappd.Data
         public static void RegisterITestSub1InterfaceImplementation()
         {
             Rappd.Data.KnownTypesRegistry.Instance.RegisterImplementation(typeof(ITestSub1Interface),typeof(Rappd.Data.InterfaceImplementations.ITestSub1InterfaceImplementation));
+            Rappd.Data.KnownTypesRegistry.Instance.RegisterConverter<ITestSub1Interface>((implementation)
+                => new Rappd.Data.InterfaceImplementations.ITestSub1InterfaceImplementation
+                {
+                    Sub1Prop = implementation.Sub1Prop,
+                }
+            );
         }
     }
 }

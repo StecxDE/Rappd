@@ -4,10 +4,10 @@ namespace Rappd.Data
 {
     internal static partial class Implementations
     {
-        public static ITestSub1Interface Create<TInterface>(Rappd.Data.InterfaceImplementations.ITestSub1InterfaceImplementation implementation)
-            where TInterface : ITestSub1Interface
+        public static ITestSub1Interface CreateITestSub1Interface(string pSub1Prop)
+        => new Rappd.Data.InterfaceImplementations.ITestSub1InterfaceImplementation
         {
-            return implementation;
-        }
+            Sub1Prop = pSub1Prop,
+        };
     }
 }
