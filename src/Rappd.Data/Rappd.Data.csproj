@@ -42,11 +42,6 @@
 			<PackagePath>analyzers/dotnet/cs</PackagePath>
 			<Visible>false</Visible>
 		</None>
-		<None Include="$(OutputPath)\Rappd.Data.Annotations.dll">
-			<Pack>True</Pack>
-			<PackagePath>analyzers/dotnet/cs</PackagePath>
-			<Visible>false</Visible>
-		</None>
 		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
 			<Pack>True</Pack>
 			<PackagePath>lib/$(TargetFramework)</PackagePath>
