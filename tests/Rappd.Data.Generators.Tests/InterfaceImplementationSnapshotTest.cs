@@ -177,7 +177,7 @@ namespace Rappd.Data.Generators.Tests
             var source = @"
                 using Rappd.Data;
                 
-                [assembly: ImplementsFrom<ITestInterface>]
+                [assembly: ImplementsFrom<ITestBaseInterface>]
                 
                 [BaseInterface(nameof(Type))]
                 public interface ITestBaseInterface

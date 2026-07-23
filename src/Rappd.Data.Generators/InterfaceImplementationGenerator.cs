@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Rappd.Data.Generators.Utils;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using static Rappd.Data.Generators.InterfaceImplementationGenerator;
 
 namespace Rappd.Data.Generators;
 
@@ -11,70 +13,73 @@ public class InterfaceImplementationGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        IncrementalValuesProvider<TypeToGenerate[]> typesToGenerateProvider = context.SyntaxProvider
+        var implementsFromProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 typeof(ImplementsFromAttribute<>).FullName,
                 predicate: static (s, _) => true,
                 transform: static (ctx, _) => SyntaxTransformUtil.GetTypesToGenerate(ctx.Attributes))
-            .Where(static m => m.Length > 0);
-        context.RegisterSourceOutput(typesToGenerateProvider,
-            static (spc, source) => { foreach (var typeToGenerate in source) Execute(typeToGenerate, spc); });
+            .Where(static m => m.Length > 0)
+            .Collect();
+        context.RegisterSourceOutput(implementsFromProvider,
+            static (spc, source) => { Execute(source, spc, "From"); });
 
-        IncrementalValuesProvider<TypeToGenerate[]> typeToGenerateProvider2 = context.SyntaxProvider
+        var implementsProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 typeof(ImplementsAttribute<>).FullName,
                 predicate: static (s, _) => true,
                 transform: static (ctx, _) => SyntaxTransformUtil.GetTypesToGenerate(ctx.SemanticModel, ctx.Attributes, ctx.TargetNode))
-            .Where(static m => m.Length > 0);
-        context.RegisterSourceOutput(typeToGenerateProvider2,
-            static (spc, source) => { foreach (var typeToGenerate in source) Execute(typeToGenerate, spc); });
+            .Where(static m => m.Length > 0)
+            .Collect();
+        context.RegisterSourceOutput(implementsProvider,
+            static (spc, source) => { Execute(source, spc, ""); });
 
-        IncrementalValuesProvider<BaseInterfaceToRegister?> baseInterfaceToRegisterProvider = context.SyntaxProvider
+        var baseInterfaceToRegisterProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 typeof(BaseInterfaceAttribute).FullName,
                 predicate: static (s, _) => true,
                 transform: static (ctx, _) => SyntaxTransformUtil.GetBaseInterfaceToRegister(ctx.SemanticModel, ctx.Attributes, ctx.TargetNode))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Collect();
         context.RegisterSourceOutput(baseInterfaceToRegisterProvider,
             static (spc, source) => Execute(source, spc));
 
-        IncrementalValuesProvider<SubInterfaceToRegister?> subInterfaceToRegisterProvider = context.SyntaxProvider
+        var subInterfaceToRegisterProvider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 typeof(SubInterfaceAttribute<>).FullName,
                 predicate: static (s, _) => true,
                 transform: static (ctx, _) => SyntaxTransformUtil.GetSubInterfaceToRegister(ctx.SemanticModel, ctx.Attributes, ctx.TargetNode))
-            .Where(static m => m is not null);
+            .Where(static m => m is not null)
+            .Collect();
         context.RegisterSourceOutput(subInterfaceToRegisterProvider,
             static (spc, source) => Execute(source, spc));
     }
 
-    private static void Execute(TypeToGenerate? typeToGenerate, SourceProductionContext context)
+    private static void Execute(ImmutableArray<TypeToGenerate[]> typesToGenerate, SourceProductionContext context, string id)
     {
-        if (typeToGenerate is not null)
+        if (typesToGenerate.Any())
         {
-            string implementation = SourceGeneratorUtil.GenerateImplementation(typeToGenerate);
-            context.AddSource($"{typeToGenerate.ImplementationType.Name}.Implementation.g.cs", SourceText.From(implementation, Encoding.UTF8));
-            string registration = SourceGeneratorUtil.GenerateRegistration(typeToGenerate);
-            context.AddSource($"{typeToGenerate.ImplementationType.Name}.Registration.g.cs", SourceText.From(registration, Encoding.UTF8));
-            string generator = SourceGeneratorUtil.GenerateImplementationGenerator2(typeToGenerate);
-            if (!string.IsNullOrWhiteSpace(generator))
-                context.AddSource($"{typeToGenerate.ImplementationType.Name}.Generator.g.cs", SourceText.From(generator, Encoding.UTF8));
+            string implementation = SourceGeneratorUtil.GenerateImplementations(typesToGenerate.SelectMany(t => t).ToArray());
+            context.AddSource($"Rappd.Data.Implementations{id}.g.cs", SourceText.From(implementation, Encoding.UTF8));
+            string registration = SourceGeneratorUtil.GenerateRegistrations(typesToGenerate.SelectMany(t => t).ToArray(), id);
+            context.AddSource($"Rappd.Data.Registrations{id}.g.cs", SourceText.From(registration, Encoding.UTF8));
+            string generator = SourceGeneratorUtil.GenerateImplementationGenerators(typesToGenerate.SelectMany(t => t).ToArray());
+            context.AddSource($"Rappd.Data.Generators{id}.g.cs", SourceText.From(generator, Encoding.UTF8));
         }
     }
-    private static void Execute(BaseInterfaceToRegister? baseInterfaceToGenerate, SourceProductionContext context)
+    private static void Execute(ImmutableArray<BaseInterfaceToRegister?> baseInterfacesToGenerate, SourceProductionContext context)
     {
-        if (baseInterfaceToGenerate is not null)
+        if (baseInterfacesToGenerate.Any())
         {
-            string registration = SourceGeneratorUtil.GenerateRegistration(baseInterfaceToGenerate);
-            context.AddSource($"{baseInterfaceToGenerate.InterfaceType.Name}.BaseRegistration.g.cs", SourceText.From(registration, Encoding.UTF8));
+            string registration = SourceGeneratorUtil.GenerateRegistrations(baseInterfacesToGenerate.ToArray());
+            context.AddSource($"Rappd.Data.BaseInterfaceRegistrations.g.cs", SourceText.From(registration, Encoding.UTF8));
         }
     }
-    private static void Execute(SubInterfaceToRegister? subInterfaceToGenerate, SourceProductionContext context)
+    private static void Execute(ImmutableArray<SubInterfaceToRegister?> subInterfacesToGenerate, SourceProductionContext context)
     {
-        if (subInterfaceToGenerate is not null)
+        if (subInterfacesToGenerate.Any())
         {
-            string registration = SourceGeneratorUtil.GenerateRegistration(subInterfaceToGenerate);
-            context.AddSource($"{subInterfaceToGenerate.SubInterfaceType.Name}.SubRegistration.g.cs", SourceText.From(registration, Encoding.UTF8));
+            string registration = SourceGeneratorUtil.GenerateRegistrations(subInterfacesToGenerate.ToArray());
+            context.AddSource($"Rappd.Data.SubInterfaceRegistrations.g.cs", SourceText.From(registration, Encoding.UTF8));
         }
     }
 
