@@ -45,7 +45,7 @@ namespace Rappd.Api
         {
             string pattern = IEndpointMap.CreatePattern(prefix, path);
             foreach (var map in maps)
-                map.AddTo(builder, pattern, [..conventions, ..conventions]);
+                map.AddTo(builder, pattern, [..conventions, .._conventions]);
         }
 
         public void Add(Action<EndpointBuilder> convention)
