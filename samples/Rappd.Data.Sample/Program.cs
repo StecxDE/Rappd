@@ -14,7 +14,7 @@ var factory = new InterfaceConverterFactory();
 var options = new JsonSerializerOptions(JsonSerializerOptions.Web);
 options.Converters.Add(factory);
 
-var sub = Implementations.CreateISub(
+IBase sub = Implementations.CreateISub(
     "123",
     "subbb"
 );

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
 
@@ -123,8 +124,7 @@ namespace Rappd.Data
                 if (EnableAdditionalProperties)
                 {
                     // Use the default converter of the implementation type to deserialize the interface
-                    var converter = (JsonConverter<TImplementation>)options.GetConverter(typeof(TImplementation));
-                    return converter.Read(ref reader, typeof(TImplementation), options);
+                    return JsonSerializer.Deserialize<TImplementation>(ref reader, options);
                 }
                 else
                 {
@@ -174,20 +174,22 @@ namespace Rappd.Data
                 if (EnableAdditionalProperties)
                 {
                     // Use the default converter of the implementation type to serialize the interface
-                    var converter = (JsonConverter<TImplementation>)options.GetConverter(typeof(TImplementation));
-                    converter.Write(writer, (TImplementation)value!, options);
+                    JsonSerializer.Serialize(writer, value, typeof(TImplementation), options);
                 }
                 else
                 {
                     writer.WriteStartObject();
-                    List<PropertyInfo> properties = [];
+                    var implementationProperties = typeof(TImplementation).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    List<PropertyInfo> interfaceProperties = [];
                     void AddProperties(Type type)
                     {
-                        properties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+                        interfaceProperties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
                         foreach (var @interface in type.GetInterfaces())
                             AddProperties(@interface);
                     }
                     AddProperties(typeof(TInterface));
+
+                    var properties = implementationProperties.Where(p => interfaceProperties.Any(ip => ip.Name == p.Name));
                     foreach (var property in properties)
                     {
                         if (!property.CanWrite)
@@ -231,9 +233,9 @@ namespace Rappd.Data
             {
                 if (typeof(TBaseType).GetProperty(DiscriminatorProperty.name)?.GetValue(value) is object discriminatorValue && KnownTypesRegistry.Instance.TryGetSubType(typeof(TBaseType), discriminatorValue, out var subType))
                 {
-                    var converterType = typeof(JsonConverter<>).MakeGenericType(subType);
-                    var converter = options.GetConverter(subType);
-                    converterType.GetMethod(nameof(JsonConverter<>.Write))?.Invoke(converter, [writer, value, options]);
+                    var document = JsonSerializer.SerializeToNode(value, subType, options);
+                    document?.AsObject().Add(options.PropertyNamingPolicy?.ConvertName(DiscriminatorProperty.name) ?? DiscriminatorProperty.name, JsonSerializer.SerializeToNode(discriminatorValue, DiscriminatorProperty.type));
+                    document?.WriteTo(writer);
                 }
                 else
                     throw new NotSupportedException();

@@ -96,12 +96,13 @@ public class InterfaceImplementationGenerator : IIncrementalGenerator
     {
         public IMethodSymbol Method { get; } = method;
     }
-    internal class TypeToGenerate((string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) implementationType, ITypeSymbol[] interfacesToImplement, MemberToGenerate[] membersToGenerate, bool isClosedImplementation)
+    internal class TypeToGenerate((string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) implementationType, ITypeSymbol[] interfacesToImplement, MemberToGenerate[] membersToGenerate, bool isClosedImplementation, bool isPrimaryImplementation)
     {
         public (string ContainingNamespace, string Name, Accessibility Accessibility, TypeKind TypeKind, bool IsRecord) ImplementationType { get; } = implementationType;
         public ITypeSymbol[] InterfacesToImplement { get; } = interfacesToImplement;
         public MemberToGenerate[] MembersToGenerate { get; } = membersToGenerate;
         public bool IsClosedImplementation { get; } = isClosedImplementation;
+        public bool IsPrimaryImplementation { get; } = isPrimaryImplementation;
     }
 
     internal class BaseInterfaceToRegister(ITypeSymbol interfaceType, IPropertySymbol discriminatorProperty)
