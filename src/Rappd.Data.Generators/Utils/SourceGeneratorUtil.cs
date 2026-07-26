@@ -113,9 +113,9 @@ namespace Rappd.Data.Generators.Utils
             foreach (var typeToGenerate in typesToGenerate)
             {
                 var implementation = typeToGenerate.ImplementationType;
-
-                foreach (var @interface in typeToGenerate.InterfacesToImplement)
-                    sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterImplementation)}(typeof({@interface.ToDisplayString()}),typeof({implementation.ContainingNamespace}.{implementation.Name}));");
+                if (typeToGenerate.IsPrimaryImplementation)
+                    foreach (var @interface in typeToGenerate.InterfacesToImplement)
+                        sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterImplementation)}(typeof({@interface.ToDisplayString()}),typeof({implementation.ContainingNamespace}.{implementation.Name}));");
                 if (typeToGenerate.IsClosedImplementation && typeToGenerate.InterfacesToImplement.FirstOrDefault() is ITypeSymbol interfaceType)
                 {
                     sb.AppendLine($"            {typeof(KnownTypesRegistry).FullName}.{nameof(KnownTypesRegistry.Instance)}.{nameof(KnownTypesRegistry.Instance.RegisterConverter)}<{interfaceType.ToDisplayString()}>((implementation)");

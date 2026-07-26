@@ -92,7 +92,7 @@ namespace Rappd.Data.Generators.Utils
                         if (members != null)
                             typesToGenerate.Add(new TypeToGenerate(
                                 ("Rappd.Data.InterfaceImplementations", $"{symbol.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
-                                [symbol], [.. members], true
+                                [symbol], [.. members], true, true
                             ));
                     }
                 }
@@ -126,12 +126,12 @@ namespace Rappd.Data.Generators.Utils
                             if (closedMembersToGenerate != null)
                                 typesToGenerate.Add(new TypeToGenerate(
                                     ("Rappd.Data.InterfaceImplementations", $"{typeSymbol.Name}Closed{interfaceType.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
-                                    [interfaceType], [.. closedMembersToGenerate], true
+                                    [interfaceType], [.. closedMembersToGenerate], true, false
                                 ));
                         }
                     }
 
-                    typesToGenerate.Add(new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members], false));
+                    typesToGenerate.Add(new TypeToGenerate((typeSymbol.ContainingNamespace.ToString(), typeSymbol.Name, typeSymbol.DeclaredAccessibility, typeSymbol.TypeKind, typeSymbol.IsRecord), [.. interfaces], [.. members], false, true));
                     break;
 
                 default:
@@ -145,7 +145,7 @@ namespace Rappd.Data.Generators.Utils
                             if (membersToGenerate != null)
                                 typesToGenerate.Add(new TypeToGenerate(
                                     ("Rappd.Data.InterfaceImplementations", $"{interfaceType.Name}Implementation", Accessibility.Internal, TypeKind.Class, true),
-                                    [interfaceType], [.. membersToGenerate], true
+                                    [interfaceType], [.. membersToGenerate], true, true
                                 ));
                         }
                     }
