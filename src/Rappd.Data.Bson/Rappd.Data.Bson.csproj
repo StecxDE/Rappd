@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MongoDB.Bson" Version="3.10.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(OutputPath)\Rappd.Data.Shared.dll">
+			<Pack>True</Pack>
+			<PackagePath>lib/$(TargetFramework)</PackagePath>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Rappd.Data\Rappd.Data.csproj" />
+		<ProjectReference Include="..\Rappd.Data.Shared\Rappd.Data.Shared.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+	</ItemGroup>
+
+</Project>

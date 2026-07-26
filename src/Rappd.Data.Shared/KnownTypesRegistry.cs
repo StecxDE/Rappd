@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
 
 namespace Rappd.Data
@@ -35,6 +37,27 @@ namespace Rappd.Data
         /// The internal store for all currently knwon type converters
         /// </summary>
         private readonly static Dictionary<Type, Converter> _knownConverters = [];
+
+        public (Type @interface, Type implementation)[] GetInterfaceImplementations()
+            => [.._knownImplementationTypes.Select(kvp => (kvp.Key, kvp.Value))];
+        public (Type @base, string discriminatorProperty, Type discriminatorType, (object discriminator, Type subtype)[] subtypes)[] GetPolymorphicTypes()
+        {
+            var list = new List<(Type @base, string discriminatorProperty, Type discriminatorType, (object discriminator, Type subtype)[] subtypes)>();
+
+            foreach (var baseTypeInfo in _knownBaseTypes)
+            {
+                var @base = baseTypeInfo.Key;
+                if(_knownSubTypes.TryGetValue(@base, out var subTypeInfos))
+                {
+                    var subtypes = new List<(object discriminator, Type subtype)>();
+                    foreach (var subTypeInfo in subTypeInfos)
+                        subtypes.Add((subTypeInfo.Key, subTypeInfo.Value));
+                    list.Add((@base, baseTypeInfo.Value.name, baseTypeInfo.Value.type, [..subtypes]));
+                }
+            }
+
+            return [.. list];
+        }
 
         public void RegisterBaseType(Type baseType, (Type type, string name) discriminator)
         {
