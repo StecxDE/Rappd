@@ -30,6 +30,10 @@ namespace Rappd.Data
         /// </summary>
         private readonly Dictionary<Type, Dictionary<string, Type>> _knownSubTypes = [];
         /// <summary>
+        /// The internal store for all currently known base types and their sub types.
+        /// </summary>
+        private readonly Dictionary<Type, Dictionary<Type, object>> _knownDiscriminators = [];
+        /// <summary>
         /// The internal store for all currently known interface types and their corresponding implementation type.
         /// </summary>
         private readonly Dictionary<Type, Type> _knownImplementationTypes = [];
@@ -64,10 +68,17 @@ namespace Rappd.Data
                 subTypes = [];
                 _knownSubTypes.Add(baseType, subTypes);
             }
-
             var discriminatorString = discriminator.ToString();
             if (!subTypes.ContainsKey(discriminatorString))
                 subTypes.Add(discriminatorString, subType);
+
+            if (!_knownDiscriminators.TryGetValue(baseType, out var discriminators))
+            {
+                discriminators = [];
+                _knownDiscriminators.Add(baseType, discriminators);
+            }
+            if (!discriminators.ContainsKey(subType))
+                discriminators.Add(subType, discriminator);
         }
         public bool TryGetSubType(Type baseType, object discriminator, [NotNullWhen(true)] out Type? subType)
         {
@@ -75,12 +86,10 @@ namespace Rappd.Data
             var discriminatorString = discriminator.ToString();
             return _knownSubTypes.TryGetValue(baseType, out var subTypes) && subTypes.TryGetValue(discriminatorString, out subType);
         }
-        public bool TryGetSubTypes(Type baseType, [NotNullWhen(true)] out Type[]? subTypes)
+        public bool TryGetSubTypeDiscriminator(Type baseType, Type subType, out object? discriminator)
         {
-            subTypes = null;
-            if(_knownSubTypes.TryGetValue(baseType, out var foundSubTypes))
-                subTypes = [.. foundSubTypes.Values];
-            return subTypes is not null;
+            discriminator = null;
+            return _knownDiscriminators.TryGetValue(baseType, out var discriminators) && discriminators.TryGetValue(subType, out discriminator);
         }
 
         /// <summary>
