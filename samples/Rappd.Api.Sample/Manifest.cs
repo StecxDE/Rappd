@@ -5,13 +5,13 @@ namespace Rappd.Api.Sample;
 
 public sealed class Manifest : ApiManifest<Manifest.ManifestScopes, Manifest.ManifestEndpoints>
 {
-    public sealed class ManifestScopes : ApiScopes
+    public sealed class ManifestScopes : ApiScopes<ManifestScopes>
     {
         public ApiScope Read { get; } = Create("sample:read");
         public ApiScope Write { get; } = Create("sample:write");
     }
 
-    public sealed class ManifestEndpoints : ApiEndpoints
+    public sealed class ManifestEndpoints : ApiEndpoints<ManifestEndpoints>
     {
         public ApiEndpoint GetWeather { get; } = Get("/weather")
             .WithRequiredScope(Scopes.Read);
