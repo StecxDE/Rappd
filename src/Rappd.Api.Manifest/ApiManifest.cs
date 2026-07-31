@@ -7,28 +7,30 @@ public abstract class ApiManifest(ApiScope[] allScopes, ApiEndpoint[] allEndpoin
     public ApiScope[] AllScopes { get; } = allScopes;
     public ApiEndpoint[] AllEndpoints { get; } = allEndpoints;
 
-    public abstract class ApiScopes
+    public abstract class ApiScopes<TSelf>
+        where TSelf : ApiScopes<TSelf>
     {
-        private static List<ApiScope> _allScopes = [];
+        private static Dictionary<string, ApiScope> _allScopes = [];
 
-        public ApiScope[] AllScopes => [.. _allScopes];
+        public ApiScope[] AllScopes => [.. _allScopes.Values];
 
         public static ApiScope Create(string value)
         {
             var scope = new ApiScope(value);
-            _allScopes.Add(scope);
+            _allScopes.TryAdd(scope.ToString(), scope);
             return scope;
         }
     }
-    public abstract class ApiEndpoints
+    public abstract class ApiEndpoints<TSelf>
+        where TSelf : ApiEndpoints<TSelf>
     {
-        private static List<ApiEndpoint> _allEndpoints = [];
+        private static Dictionary<string, ApiEndpoint> _allEndpoints = [];
 
-        public ApiEndpoint[] AllEndpoints => [.. _allEndpoints];
+        public ApiEndpoint[] AllEndpoints => [.. _allEndpoints.Values];
 
         private static ApiEndpoint Register(ApiEndpoint endpoint)
         {
-            _allEndpoints.Add(endpoint);
+            _allEndpoints.TryAdd(endpoint.ToString(), endpoint);
             return endpoint;
         }
 
@@ -56,8 +58,8 @@ public abstract class ApiManifest(ApiScope[] allScopes, ApiEndpoint[] allEndpoin
 }
 
 public abstract class ApiManifest<TScopes, TEndpoints>() : ApiManifest(Scopes.AllScopes, Endpoints.AllEndpoints)
-    where TScopes : ApiScopes, new()
-    where TEndpoints : ApiEndpoints, new()
+    where TScopes : ApiScopes<TScopes>, new()
+    where TEndpoints : ApiEndpoints<TEndpoints>, new()
 {
     public static TScopes Scopes { get; } = new();
     public static TEndpoints Endpoints { get; } = new();

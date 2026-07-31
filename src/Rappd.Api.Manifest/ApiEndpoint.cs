@@ -44,13 +44,11 @@ public sealed partial class ApiEndpoint(HttpMethod method, string path)
             QueryParameters.Add(name);
         return this;
     }
-
     public ApiEndpoint WithRequiredScope(ApiScope scope)
     {
         Metadata.Add(new ApiEndpointMetadata<ApiScope>(scope));
         return this;
     }
-
     public ApiEndpoint WithMetadata(IApiEndpointMetadata metadata)
     {
         Metadata.Add(metadata);
@@ -62,7 +60,6 @@ public sealed partial class ApiEndpoint(HttpMethod method, string path)
         var uri = Construct(parameters);
         return $"{uri}?{string.Join("&", queryParameters.Where(qp => QueryParameters.Contains(qp.name)).Select(qp => $"{qp.name}={qp.value}"))}";
     }
-
     public string Construct(params object[] parameters)
     {
         var index = 0;
@@ -73,4 +70,7 @@ public sealed partial class ApiEndpoint(HttpMethod method, string path)
             return Uri.EscapeDataString(parameters[index++]?.ToString() ?? string.Empty);
         });
     }
+
+    public override string ToString()
+        => $"{Method.Method} {Path}";
 }
