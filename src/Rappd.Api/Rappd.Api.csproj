@@ -39,6 +39,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Rappd.Api.Manifest\Rappd.Api.Manifest.csproj" />
 	  <ProjectReference Include="..\Rappd.CQRS.AspNet\Rappd.CQRS.AspNet.csproj" />
 	  <ProjectReference Include="..\Rappd.Data.AspNet\Rappd.Data.AspNet.csproj" />
 	</ItemGroup>
