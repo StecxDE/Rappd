@@ -14,7 +14,7 @@ public abstract class ApiManifest(ApiScope[] allScopes, ApiEndpoint[] allEndpoin
 
         public ApiScope[] AllScopes => [.. _allScopes.Values];
 
-        public static ApiScope Create(string value)
+        protected static ApiScope Create(string value)
         {
             var scope = new ApiScope(value);
             _allScopes.TryAdd(scope.ToString(), scope);
@@ -28,31 +28,31 @@ public abstract class ApiManifest(ApiScope[] allScopes, ApiEndpoint[] allEndpoin
 
         public ApiEndpoint[] AllEndpoints => [.. _allEndpoints.Values];
 
-        private static ApiEndpoint Register(ApiEndpoint endpoint)
+        protected static ApiEndpoint Register(ApiEndpoint endpoint)
         {
             _allEndpoints.TryAdd(endpoint.ToString(), endpoint);
             return endpoint;
         }
 
-        public static ApiEndpoint Get(string path)
+        protected static ApiEndpoint Get(string path)
             => Register(new(HttpMethod.Get, path));
-        public static ApiEndpoint Post(string path)
+        protected static ApiEndpoint Post(string path)
             => Register(new(HttpMethod.Post, path));
-        public static ApiEndpoint Put(string path)
+        protected static ApiEndpoint Put(string path)
             => Register(new(HttpMethod.Put, path));
-        public static ApiEndpoint Patch(string path)
+        protected static ApiEndpoint Patch(string path)
             => Register(new(HttpMethod.Patch, path));
-        public static ApiEndpoint Delete(string path)
+        protected static ApiEndpoint Delete(string path)
             => Register(new(HttpMethod.Delete, path));
-        public static ApiEndpoint Head(string path)
+        protected static ApiEndpoint Head(string path)
             => Register(new(HttpMethod.Head, path));
-        public static ApiEndpoint Query(string path)
+        protected static ApiEndpoint Query(string path)
             => Register(new(HttpMethod.Query, path));
-        public static ApiEndpoint Options(string path)
+        protected static ApiEndpoint Options(string path)
             => Register(new(HttpMethod.Options, path));
-        public static ApiEndpoint Connect(string path)
+        protected static ApiEndpoint Connect(string path)
             => Register(new(HttpMethod.Connect, path));
-        public static ApiEndpoint Trace(string path)
+        protected static ApiEndpoint Trace(string path)
             => Register(new(HttpMethod.Trace, path));
     }
 }
