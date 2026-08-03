@@ -1,7 +1,8 @@
 ﻿namespace Rappd.Api.Manifest;
 
-public sealed class ApiScope(string value)
+public sealed class ApiScope(string name, string value)
 {
+    public string Name { get; } = name;
     public string Value { get; } = value;
 
     public override bool Equals(object? obj)

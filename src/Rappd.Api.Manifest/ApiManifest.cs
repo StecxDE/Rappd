@@ -14,9 +14,9 @@ public abstract class ApiManifest(ApiScope[] allScopes, ApiEndpoint[] allEndpoin
 
         public ApiScope[] AllScopes => [.. _allScopes.Values];
 
-        protected static ApiScope Create(string value)
+        protected static ApiScope Create(string name, string value)
         {
-            var scope = new ApiScope(value);
+            var scope = new ApiScope(name, value);
             _allScopes.TryAdd(scope.ToString(), scope);
             return scope;
         }
