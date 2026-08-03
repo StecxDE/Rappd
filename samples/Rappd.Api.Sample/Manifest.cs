@@ -7,8 +7,8 @@ public sealed class Manifest : ApiManifest<Manifest.ManifestScopes, Manifest.Man
 {
     public sealed class ManifestScopes : ApiScopes<ManifestScopes>
     {
-        public ApiScope Read { get; } = Create("sample:read");
-        public ApiScope Write { get; } = Create("sample:write");
+        public ApiScope Read { get; } = Create(nameof(Read), "sample:read");
+        public ApiScope Write { get; } = Create(nameof(Write), "sample:write");
     }
 
     public sealed class ManifestEndpoints : ApiEndpoints<ManifestEndpoints>
