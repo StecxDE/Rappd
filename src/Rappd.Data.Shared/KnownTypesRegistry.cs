@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -24,35 +25,33 @@ namespace Rappd.Data
         /// <summary>
         /// The internal store for all currently known base types and their discriminator property name and type.
         /// </summary>
-        private readonly Dictionary<Type, (Type type, string name)> _knownBaseTypes = [];
+        private readonly ConcurrentDictionary<Type, (Type type, string name)> _knownBaseTypes = new ConcurrentDictionary<Type, (Type type, string name)>();
         /// <summary>
         /// The internal store for all currently known base types and their sub types.
         /// </summary>
-        private readonly Dictionary<Type, Dictionary<string, Type>> _knownSubTypes = [];
+        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, Type>> _knownSubTypes = new ConcurrentDictionary<Type, ConcurrentDictionary<string, Type>>();
         /// <summary>
         /// The internal store for all currently known base types and their sub types.
         /// </summary>
-        private readonly Dictionary<Type, Dictionary<Type, object>> _knownDiscriminators = [];
+        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>> _knownDiscriminators = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>>();
         /// <summary>
         /// The internal store for all currently known interface types and their corresponding implementation type.
         /// </summary>
-        private readonly Dictionary<Type, Type> _knownImplementationTypes = [];
+        private readonly ConcurrentDictionary<Type, Type> _knownImplementationTypes = new ConcurrentDictionary<Type, Type>();
         /// <summary>
         /// The internal store for all currently knwon type converters
         /// </summary>
-        private readonly static Dictionary<Type, Converter> _knownConverters = [];
+        private readonly static ConcurrentDictionary<Type, Converter> _knownConverters = new ConcurrentDictionary<Type, Converter>();
 
         public (Type @interface, Type implementation)[] GetInterfaceImplementations()
-            => [.._knownImplementationTypes.Select(kvp => (kvp.Key, kvp.Value))];
+            => _knownImplementationTypes.Select(kvp => (kvp.Key, kvp.Value)).ToArray();
         public Type[] GetBaseTypes()
-            => [.._knownBaseTypes.Keys];
+            => _knownBaseTypes.Keys.ToArray();
 
         public void RegisterBaseType(Type baseType, (Type type, string name) discriminator)
         {
-            if (!_knownBaseTypes.ContainsKey(baseType))
-                _knownBaseTypes.Add(baseType, discriminator);
-            if (!_knownSubTypes.ContainsKey(baseType))
-                _knownSubTypes.Add(baseType, []);
+            _knownBaseTypes.TryAdd(baseType, discriminator);
+            _knownSubTypes.GetOrAdd(baseType, _ => new ConcurrentDictionary<string, Type>());
         }
         public bool IsBaseTypeKnown(Type baseType)
             => _knownBaseTypes.ContainsKey(baseType);
@@ -63,22 +62,12 @@ namespace Rappd.Data
             if (!baseType.IsAssignableFrom(subType))
                 return;
 
-            if (!_knownSubTypes.TryGetValue(baseType, out var subTypes))
-            {
-                subTypes = [];
-                _knownSubTypes.Add(baseType, subTypes);
-            }
+            var subTypes = _knownSubTypes.GetOrAdd(baseType, _ => new ConcurrentDictionary<string, Type>());
             var discriminatorString = discriminator.ToString();
-            if (!subTypes.ContainsKey(discriminatorString))
-                subTypes.Add(discriminatorString, subType);
+            subTypes.TryAdd(discriminatorString, subType);
 
-            if (!_knownDiscriminators.TryGetValue(baseType, out var discriminators))
-            {
-                discriminators = [];
-                _knownDiscriminators.Add(baseType, discriminators);
-            }
-            if (!discriminators.ContainsKey(subType))
-                discriminators.Add(subType, discriminator);
+            var discriminators = _knownDiscriminators.GetOrAdd(baseType, _ => new ConcurrentDictionary<Type, object>());
+            discriminators.TryAdd(subType, discriminator);
         }
         public bool TryGetSubType(Type baseType, object discriminator, [NotNullWhen(true)] out Type? subType)
         {
@@ -99,9 +88,12 @@ namespace Rappd.Data
         /// <param name="implementationType">The type of the implementation.</param>
         public void RegisterImplementation(Type interfaceType, Type implementationType)
         {
-            // Check if we don't know the interface already and the given type implements the interface
-            if (!_knownImplementationTypes.ContainsKey(interfaceType) && interfaceType.IsAssignableFrom(implementationType))
-                _knownImplementationTypes.Add(interfaceType, implementationType);
+            // Check if the given type implements the interface
+            if (interfaceType.IsAssignableFrom(implementationType))
+            {
+                // Upsert the implementation type for the interface
+                _knownImplementationTypes.AddOrUpdate(interfaceType, implementationType, (k, old) => implementationType);
+            }
         }
 
         /// <summary>
@@ -112,8 +104,7 @@ namespace Rappd.Data
         public void RegisterConverter<TInterface>(Func<TInterface, TInterface> converter)
         {
             var interfaceType = typeof(TInterface);
-            if (!_knownConverters.ContainsKey(interfaceType))
-                _knownConverters.Add(interfaceType, new Converter.Typed<TInterface>(converter));
+            _knownConverters.TryAdd(interfaceType, new Converter.Typed<TInterface>(converter));
         }
 
         /// <summary>
@@ -129,11 +120,8 @@ namespace Rappd.Data
                 converter = typed.F;
                 return true;
             }
-            else
-            {
-                converter = null;
-                return false;
-            }
+            converter = null;
+            return false;
         }
 
         /// <summary>
