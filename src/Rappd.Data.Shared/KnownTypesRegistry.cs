@@ -92,7 +92,7 @@ namespace Rappd.Data
             if (interfaceType.IsAssignableFrom(implementationType))
             {
                 // Upsert the implementation type for the interface
-                _knownImplementationTypes.AddOrUpdate(interfaceType, implementationType, (k, old) => implementationType);
+                _knownImplementationTypes.TryAdd(interfaceType, implementationType);
             }
         }
 
