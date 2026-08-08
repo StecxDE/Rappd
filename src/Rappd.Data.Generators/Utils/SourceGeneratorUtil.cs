@@ -227,7 +227,7 @@ namespace Rappd.Data.Generators.Utils
                             var producesInit = !producesSetter && !hasDefaultValue;
                             var isRequiered = (producesSetter || producesInit) && !hasDefaultValue && property.Type.NullableAnnotation == NullableAnnotation.NotAnnotated;
 
-                            if (isRequiered)
+                            if (producesInit || isRequiered)
                                 properties.Add(propertyToGenerate.Property);
                         }
                     }
