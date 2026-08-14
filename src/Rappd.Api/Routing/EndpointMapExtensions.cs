@@ -27,7 +27,7 @@ namespace Rappd.Api
         public static IEndpointRouteBuilder Map(this IEndpointRouteBuilder builder, string? path, params IEndpointMap[] endpoints)
         {
             foreach (var endpoint in endpoints)
-                endpoint.AddTo(builder, path);
+                endpoint.AddTo(builder, path, [], []);
             return builder;
         }
 
