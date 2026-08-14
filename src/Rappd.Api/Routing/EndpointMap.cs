@@ -13,7 +13,7 @@ namespace Rappd.Api
         /// </summary>
         /// <param name="prefix">The prefix added to the path to map.</param>
         /// <param name="builder">The <see cref="IEndpointRouteBuilder"/>.</param>
-        internal void AddTo(IEndpointRouteBuilder builder, string? prefix, params Action<EndpointBuilder>[] conventions);
+        internal void AddTo(IEndpointRouteBuilder builder, string? prefix, Action<EndpointBuilder>[] conventions, Action<EndpointBuilder>[] finallyConventions);
 
         /// <summary>
         /// Creates a pattern which can be used to map method with the <see cref="IEndpointConventionBuilder"/> out of a prefix and the path.
@@ -35,21 +35,36 @@ namespace Rappd.Api
         /// The conventions to apply.
         /// </summary>
         private readonly List<Action<EndpointBuilder>> _conventions = [];
+        /// <summary>
+        /// The conventions to apply finally.
+        /// </summary>
+        private readonly List<Action<EndpointBuilder>> _finallyConventions = [];
 
         /// <summary>
         /// Adds the <see cref="IEndpointMap"/> to the <see cref="IEndpointRouteBuilder"/>.
         /// </summary>
         /// <param name="prefix">The prefix added to the path to map.</param>
         /// <param name="builder">The <see cref="IEndpointRouteBuilder"/>.</param>
-        public void AddTo(IEndpointRouteBuilder builder, string? prefix, params Action<EndpointBuilder>[] conventions)
+        public void AddTo(IEndpointRouteBuilder builder, string? prefix, Action<EndpointBuilder>[] conventions, Action<EndpointBuilder>[] finallyConventions)
         {
             string pattern = IEndpointMap.CreatePattern(prefix, path);
             foreach (var map in maps)
-                map.AddTo(builder, pattern, [..conventions, .._conventions]);
+                map.AddTo(builder, pattern, [..conventions, .._conventions], [..finallyConventions, .._finallyConventions]);
         }
 
+        /// <summary>
+        /// Adds a convention to the <see cref="DelegateEndpointMap"/>.
+        /// </summary>
+        /// <param name="convention">The convention to add.</param>
         public void Add(Action<EndpointBuilder> convention)
             => _conventions.Add(convention);
+
+        /// <summary>
+        /// Adds a finallly convention to the <see cref="DelegateEndpointMap"/>.
+        /// </summary>
+        /// <param name="convention">The convention to add.</param>
+        public void Finally(Action<EndpointBuilder> finallyConvention)
+            => _finallyConventions.Add(finallyConvention);
     }
 
     /// <summary>
@@ -63,8 +78,12 @@ namespace Rappd.Api
         /// The conventions to apply.
         /// </summary>
         private readonly List<Action<EndpointBuilder>> _conventions = [];
+        /// <summary>
+        /// The conventions to apply finally.
+        /// </summary>
+        private readonly List<Action<EndpointBuilder>> _finallyConventions = [];
 
-        public void AddTo(IEndpointRouteBuilder builder, string? prefix, params Action<EndpointBuilder>[] conventions)
+        public void AddTo(IEndpointRouteBuilder builder, string? prefix, Action<EndpointBuilder>[] conventions, Action<EndpointBuilder>[] finallyConventions)
         {
             var pattern = IEndpointMap.CreatePattern(prefix, path);
             var mappedEnpoint = builder.MapMethods(pattern, [method], @delegate);
@@ -72,6 +91,10 @@ namespace Rappd.Api
                 mappedEnpoint.Add(convention);
             foreach (var convention in _conventions)
                 mappedEnpoint.Add(convention);
+            foreach (var convention in finallyConventions)
+                mappedEnpoint.Finally(convention);
+            foreach (var convention in _finallyConventions)
+                mappedEnpoint.Finally(convention);
         }
         /// <summary>
         /// Adds a convention to the <see cref="DelegateEndpointMap"/>.
@@ -79,5 +102,12 @@ namespace Rappd.Api
         /// <param name="convention">The convention to add.</param>
         public void Add(Action<EndpointBuilder> convention)
             => _conventions.Add(convention);
+
+        /// <summary>
+        /// Adds a finallly convention to the <see cref="DelegateEndpointMap"/>.
+        /// </summary>
+        /// <param name="convention">The convention to add.</param>
+        public void Finally(Action<EndpointBuilder> finallyConvention)
+            => _finallyConventions.Add(finallyConvention);
     }
 }
