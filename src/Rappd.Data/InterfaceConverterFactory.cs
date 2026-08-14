@@ -133,35 +133,39 @@ namespace Rappd.Data
                         var instance = Activator.CreateInstance<TImplementation>();
 
                         var implementationProperties = typeof(TImplementation).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        List<PropertyInfo> interfaceProperties = [];
+                        List<(PropertyInfo implementation, PropertyInfo @interface)> properties = [];
                         void AddProperties(Type type)
                         {
-                            interfaceProperties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+                            var interfaceProperties = type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                            foreach (var interfaceProperty in interfaceProperties)
+                            {
+                                var implementationProperty = implementationProperties.FirstOrDefault(p => p.Name == interfaceProperty.Name);
+                                if (implementationProperty is not null)
+                                    properties.Add((implementationProperty, interfaceProperty));
+                            }
                             foreach (var @interface in type.GetInterfaces())
                                 AddProperties(@interface);
                         }
                         AddProperties(typeof(TInterface));
 
-                        var properties = implementationProperties.Where(p => interfaceProperties.Any(ip => ip.Name == p.Name));
-
-                        foreach (var property in properties)
+                        foreach (var (implementation, _) in properties)
                         {
-                            if (!property.CanWrite)
+                            if (!implementation.CanWrite)
                                 continue;
 
                             JsonElement jsonProperty;
                             if (options.PropertyNameCaseInsensitive)
                             {
-                                jsonProperty = document.RootElement.EnumerateObject().FirstOrDefault(element => element.Name.Equals(property.Name, StringComparison.CurrentCultureIgnoreCase)).Value;
+                                jsonProperty = document.RootElement.EnumerateObject().FirstOrDefault(element => element.Name.Equals(implementation.Name, StringComparison.CurrentCultureIgnoreCase)).Value;
                             }
                             else
                             {
-                                var jsonPropertyName = options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name;
+                                var jsonPropertyName = options.PropertyNamingPolicy?.ConvertName(implementation.Name) ?? implementation.Name;
                                 document.RootElement.TryGetProperty(jsonPropertyName, out jsonProperty);
                             }
 
-                            var value = jsonProperty.Deserialize(property.PropertyType, options);
-                            property.SetValue(instance, value);
+                            var value = jsonProperty.Deserialize(implementation.PropertyType, options);
+                            implementation.SetValue(instance, value);
                         }
 
                         return instance;
@@ -180,23 +184,28 @@ namespace Rappd.Data
                 {
                     writer.WriteStartObject();
                     var implementationProperties = typeof(TImplementation).GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    List<PropertyInfo> interfaceProperties = [];
+                    List<(PropertyInfo implementation, PropertyInfo @interface)> properties = [];
                     void AddProperties(Type type)
                     {
-                        interfaceProperties.AddRange(type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
+                        var interfaceProperties = type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        foreach (var interfaceProperty in interfaceProperties)
+                        {
+                            var implementationProperty = implementationProperties.FirstOrDefault(p => p.Name == interfaceProperty.Name);
+                            if(implementationProperty is not null)
+                                properties.Add((implementationProperty, interfaceProperty));
+                        }
                         foreach (var @interface in type.GetInterfaces())
                             AddProperties(@interface);
                     }
                     AddProperties(typeof(TInterface));
 
-                    var properties = implementationProperties.Where(p => interfaceProperties.Any(ip => ip.Name == p.Name));
-                    foreach (var property in properties)
+                    foreach (var (implementation, @interface) in properties)
                     {
-                        if (!property.CanWrite)
+                        if (!implementation.CanWrite)
                             continue;
 
-                        writer.WritePropertyName(options.PropertyNamingPolicy?.ConvertName(property.Name) ?? property.Name);
-                        JsonSerializer.Serialize(writer, property.GetValue(value), property.PropertyType, options);
+                        writer.WritePropertyName(options.PropertyNamingPolicy?.ConvertName(implementation.Name) ?? implementation.Name);
+                        JsonSerializer.Serialize(writer, @interface.GetValue(value), implementation.PropertyType, options);
                     }
                     writer.WriteEndObject();
                 }
