@@ -64,6 +64,14 @@ public abstract record Command<TRequest>() : Request<TRequest, Response>
         {
             return new Response(new NoHandlerResult());
         }
+        catch (HandlerActivationException ex)
+        {
+            return new Response(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response(new ExceptionResult(ex));
+        }
     }
 }
 /// <summary>
@@ -99,6 +107,14 @@ public abstract record Command<TRequest, TData>() : Request<TRequest, Response<T
         {
             return new Response<TData>(new NoHandlerResult());
         }
+        catch (HandlerActivationException ex)
+        {
+            return new Response<TData>(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response<TData>(new ExceptionResult(ex));
+        }
     }
 }
 /// <summary>
@@ -132,6 +148,14 @@ public abstract record Query<TRequest>() : Request<TRequest, Response>
         catch (NoHandlerFoundException)
         {
             return new Response(new NoHandlerResult());
+        }
+        catch (HandlerActivationException ex)
+        {
+            return new Response(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response(new ExceptionResult(ex));
         }
     }
 }
@@ -167,6 +191,14 @@ public abstract record Query<TRequest, TData>() : Request<TRequest, Response<TDa
         catch (NoHandlerFoundException)
         {
             return new Response<TData>(new NoHandlerResult());
+        }
+        catch (HandlerActivationException ex)
+        {
+            return new Response<TData>(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response<TData>(new ExceptionResult(ex));
         }
     }
 }
@@ -237,6 +269,14 @@ public abstract record ParameterizedCommand<TRequest, TArguments>() : Request<TR
         {
             return new Response(new NoHandlerResult());
         }
+        catch (HandlerActivationException ex)
+        {
+            return new Response(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response(new ExceptionResult(ex));
+        }
     }
 }
 /// <summary>
@@ -275,6 +315,14 @@ public abstract record ParameterizedCommand<TRequest, TArguments, TData>() : Req
         {
             return new Response<TData>(new NoHandlerResult());
         }
+        catch (HandlerActivationException ex)
+        {
+            return new Response<TData>(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response<TData>(new ExceptionResult(ex));
+        }
     }
 }
 /// <summary>
@@ -311,6 +359,14 @@ public abstract record ParameterizedQuery<TRequest, TArguments>() : Request<TReq
         catch (NoHandlerFoundException)
         {
             return new Response(new NoHandlerResult());
+        }
+        catch (HandlerActivationException ex)
+        {
+            return new Response(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response(new ExceptionResult(ex));
         }
     }
 }
@@ -349,6 +405,14 @@ public abstract record ParameterizedQuery<TRequest, TArguments, TData>() : Reque
         catch (NoHandlerFoundException)
         {
             return new Response<TData>(new NoHandlerResult());
+        }
+        catch (HandlerActivationException ex)
+        {
+            return new Response<TData>(new HandlerActivationErrorResult(ex));
+        }
+        catch (Exception ex)
+        {
+            return new Response<TData>(new ExceptionResult(ex));
         }
     }
 }

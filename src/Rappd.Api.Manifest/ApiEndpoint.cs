@@ -33,7 +33,7 @@ public sealed partial class ApiEndpoint(HttpMethod method, string path)
     public string Path { get; } = path;
 
     public HashSet<string> QueryParameters { get; } = [];
-    public List<IApiEndpointMetadata> Metadata { get; } = []; 
+    public List<IApiEndpointMetadata> Metadata { get; } = [];
 
     [GeneratedRegex(@"\{[^{}]+\}")]
     private static partial Regex RouteParameterRegex();

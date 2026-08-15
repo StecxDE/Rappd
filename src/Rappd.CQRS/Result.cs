@@ -130,6 +130,23 @@ public sealed class NoHandlerResult : ErrorResult
         => new(Message);
 }
 /// <summary>
+/// The default result of a request without a handler.
+/// </summary>
+public sealed class HandlerActivationErrorResult : ErrorResult
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HandlerActivationErrorResult"/> class.
+    /// </summary>
+    internal HandlerActivationErrorResult(HandlerActivationException exception) : base($"Failed to activate handler: {exception}") { }
+
+    /// <summary>
+    /// Gets a exception describing the error.
+    /// </summary>
+    /// <returns>A exception describing the error.</returns>
+    public override Exception ToException()
+        => new(Message);
+}
+/// <summary>
 /// The default result of a cancelled request.
 /// </summary>
 public sealed class CancelledResult : ErrorResult
