@@ -80,6 +80,10 @@ public abstract record CommandHandler<TRequest> : Handler<TRequest, Response>
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
+        }
         catch (Exception ex)
         {
             result = Results.Exception(ex);
@@ -124,6 +128,10 @@ public abstract record CommandHandler<TRequest, TData> : Handler<TRequest, Respo
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
+        }
         catch (Exception ex)
         {
             result = Results.Exception(ex);
@@ -166,6 +174,10 @@ public abstract record QueryHandler<TRequest> : Handler<TRequest, Response>
             {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
         }
         catch (Exception ex)
         {
@@ -210,6 +222,10 @@ public abstract record QueryHandler<TRequest, TData> : Handler<TRequest, Respons
             {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
         }
         catch (Exception ex)
         {
@@ -289,6 +305,10 @@ public abstract record ParameterizedCommandHandler<TRequest, TArguments> : Handl
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
+        }
         catch (Exception ex)
         {
             result = Results.Exception(ex);
@@ -330,6 +350,10 @@ public abstract record ParameterizedCommandHandler<TRequest, TArguments, TData> 
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
+        }
         catch (Exception ex)
         {
             result = Results.Exception(ex);
@@ -369,6 +393,10 @@ public abstract record ParameterizedQueryHandler<TRequest, TArguments> : Handler
             {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
         }
         catch (Exception ex)
         {
@@ -410,6 +438,10 @@ public abstract record ParameterizedQueryHandler<TRequest, TArguments, TData> : 
             {
                 result = await HandleAsync(cancellationToken).ConfigureAwait(false);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            result = Results.Cancelled;
         }
         catch (Exception ex)
         {

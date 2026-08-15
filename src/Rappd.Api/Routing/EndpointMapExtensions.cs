@@ -67,6 +67,14 @@ namespace Rappd.Api
         public static IEndpointMap Get(this string path, Delegate @delegate)
             => CreateMap(path, HttpMethods.Get, @delegate);
         /// <summary>
+        /// Creates a <see cref="IEndpointMap"/> that matches HTTP QUERY requests for the specified path.
+        /// </summary>
+        /// <param name="path">The route path.</param>
+        /// <param name="delegate">The delegate executed when the endpoint is matched.</param>
+        /// <returns>A <see cref="IEndpointMap"/> that can be used to further customize the endpoint.</returns>
+        public static IEndpointMap Query(this string path, Delegate @delegate)
+            => CreateMap(path, HttpMethods.Query, @delegate);
+        /// <summary>
         /// Creates a <see cref="IEndpointMap"/> that matches HTTP POST requests for the specified path.
         /// </summary>
         /// <param name="path">The route path.</param>
