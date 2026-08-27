@@ -80,6 +80,13 @@ namespace Rappd.Data
             discriminator = null;
             return _knownDiscriminators.TryGetValue(baseType, out var discriminators) && discriminators.TryGetValue(subType, out discriminator);
         }
+        public bool TryGetSubTypes(Type baseType, [NotNullWhen(true)] out Type[]? subTypes)
+        {
+            subTypes = null;
+            if(_knownSubTypes.TryGetValue(baseType, out var subTypesDict))
+                subTypes = [.. subTypesDict.Values];
+            return subTypes is not null;
+        }
 
         /// <summary>
         /// Registers a implementation type.
