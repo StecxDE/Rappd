@@ -133,7 +133,7 @@ public class GuidRepresentationConvention : ConventionBase, IMemberMapConvention
             return;
 
         var serializer = memberMap.GetSerializer();
-        var bsonSerializer = ((_topLevelOnly && !IsNullableGuid(serializer.ValueType)) ? Reconfigure(serializer, _representation) : ReconfigureSerializerRecursively(serializer, Reconfigure));
+        var bsonSerializer = ((_topLevelOnly && !IsNullableGuid(serializer.ValueType)) ? Reconfigure(serializer, _representation) : ReconfigureSerializerRecursively(serializer, Reconfigure, _representation));
         if (bsonSerializer != null)
             memberMap.SetSerializer(bsonSerializer);
     }
