@@ -142,7 +142,7 @@ public sealed class HandlerActivationErrorResult : ErrorResult
     /// <summary>
     /// Initializes a new instance of the <see cref="HandlerActivationErrorResult"/> class.
     /// </summary>
-    internal HandlerActivationErrorResult(HandlerActivationException exception) : base($"Failed to activate handler: {exception}")
+    internal HandlerActivationErrorResult(HandlerActivationException exception) : base(exception.Message)
     {
         Exception = exception;
     }
