@@ -135,16 +135,24 @@ public sealed class NoHandlerResult : ErrorResult
 public sealed class HandlerActivationErrorResult : ErrorResult
 {
     /// <summary>
+    /// The occurred exception.
+    /// </summary>
+    private HandlerActivationException Exception { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="HandlerActivationErrorResult"/> class.
     /// </summary>
-    internal HandlerActivationErrorResult(HandlerActivationException exception) : base($"Failed to activate handler: {exception}") { }
+    internal HandlerActivationErrorResult(HandlerActivationException exception) : base($"Failed to activate handler: {exception}")
+    {
+        Exception = exception;
+    }
 
     /// <summary>
     /// Gets a exception describing the error.
     /// </summary>
     /// <returns>A exception describing the error.</returns>
     public override Exception ToException()
-        => new(Message);
+        => Exception;
 }
 /// <summary>
 /// The default result of a cancelled request.

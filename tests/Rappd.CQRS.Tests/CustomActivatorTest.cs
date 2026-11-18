@@ -44,7 +44,10 @@ public class CustomActivatorTest
     [Fact]
     public async Task ConstructorInjection_Failing_ReturnsValue()
     {
+        // Act
+        var response = await CustomActivatorTestQuery.SendAsync(TestContext.Current.CancellationToken);
+
         // Arrange, Act, Assert
-        await Assert.ThrowsAsync<HandlerActivationException>(() => CustomActivatorTestQuery.SendAsync(TestContext.Current.CancellationToken));
+        Assert.Throws<HandlerActivationException>(response.EnsureSuccess);
     }
 }
