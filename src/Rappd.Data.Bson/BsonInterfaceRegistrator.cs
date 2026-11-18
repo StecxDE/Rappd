@@ -131,7 +131,6 @@ public class GuidRepresentationConvention : ConventionBase, IMemberMapConvention
         var memberType = memberMap.MemberType;
         if (!CouldApply(memberType))
             return;
-
         var serializer = memberMap.GetSerializer();
         var bsonSerializer = ((_topLevelOnly && !IsNullableGuid(serializer.ValueType)) ? Reconfigure(serializer, _representation) : ReconfigureSerializerRecursively(serializer, Reconfigure, _representation));
         if (bsonSerializer != null)
